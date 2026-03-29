@@ -8,6 +8,8 @@ export type AssistantState =
   | "error"
   | "disconnected";
 
+export type InstructionMode = "interview-prep" | "english-learning";
+
 export type TranscriptRole = "user" | "assistant";
 
 export interface TranscriptItem {

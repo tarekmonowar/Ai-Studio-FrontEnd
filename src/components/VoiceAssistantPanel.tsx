@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  BrainCircuit,
-  Mic,
-  MicOff,
-  Radio,
-  ShieldCheck,
-  Volume2,
-} from "lucide-react";
+import { Mic, MicOff, Radio, ShieldCheck } from "lucide-react";
 import {
   useCallback,
   useEffect,
@@ -22,23 +15,29 @@ import { AudioPlayer } from "@/lib/audioPlayer";
 import { pcm16Level } from "@/lib/pcm";
 import type {
   AssistantState,
+  InstructionMode,
   ServerEvent,
   TranscriptItem,
 } from "@/types/voice";
 import { VoiceWave } from "./VoiceWave";
 
 const MAX_TRANSCRIPTS = 8;
+const DEFAULT_INSTRUCTION_MODE: InstructionMode = "interview-prep";
 
-const STATUS_LABELS: Record<AssistantState, string> = {
-  "idle": "Idle",
-  "connecting": "Connecting",
-  "listening": "Listening",
-  "user-speaking": "You are speaking",
-  "thinking": "Tasnim is thinking",
-  "assistant-speaking": "Tasnim is speaking",
-  "error": "Connection issue",
-  "disconnected": "Disconnected",
-};
+function getStatusLabels(
+  assistantName: string,
+): Record<AssistantState, string> {
+  return {
+    "idle": "Idle",
+    "connecting": "Connecting",
+    "listening": "Listening",
+    "user-speaking": "You are speaking",
+    "thinking": `${assistantName} is thinking`,
+    "assistant-speaking": `${assistantName} is speaking`,
+    "error": "Connection issue",
+    "disconnected": "Disconnected",
+  };
+}
 
 function nextTranscript(
   items: TranscriptItem[],
@@ -58,6 +57,10 @@ export function VoiceAssistantPanel() {
   const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
   const [clientError, setClientError] = useState<string | null>(null);
   const [aiLevel, setAiLevel] = useState(0);
+  const [selectedInstructionMode, setSelectedInstructionMode] =
+    useState<InstructionMode>(DEFAULT_INSTRUCTION_MODE);
+  const [appliedInstructionMode, setAppliedInstructionMode] =
+    useState<InstructionMode>(DEFAULT_INSTRUCTION_MODE);
 
   const playerRef = useRef(new AudioPlayer());
   const assistantStateRef = useRef<AssistantState>("idle");
@@ -67,6 +70,15 @@ export function VoiceAssistantPanel() {
   const lastResponseRequestAtRef = useRef(0);
   const requestAssistantResponseRef = useRef<() => void>(() => {});
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
+
+  const assistantName = useMemo(
+    () => (appliedInstructionMode === "english-learning" ? "Ava" : "Tasnim"),
+    [appliedInstructionMode],
+  );
+  const statusLabels = useMemo(
+    () => getStatusLabels(assistantName),
+    [assistantName],
+  );
 
   const handleServerEvent = useCallback((event: ServerEvent) => {
     switch (event.type) {
@@ -224,7 +236,6 @@ export function VoiceAssistantPanel() {
     }
   }, [status]);
 
-
   useEffect(() => {
     if (!started) {
       return;
@@ -258,36 +269,72 @@ export function VoiceAssistantPanel() {
     };
   }, [disconnect]);
 
+  const startConversation = useCallback(
+    async (instructionMode: InstructionMode) => {
+      setClientError(null);
+      setAssistantState("connecting");
+      setSessionReady(false);
+
+      try {
+        await playerRef.current.init();
+        await connect(instructionMode);
+        setStarted(true);
+      } catch (error) {
+        setStarted(false);
+        setAssistantState("error");
+        const message =
+          error instanceof Error
+            ? error.message
+            : "Unable to start voice session. Check frontend and backend connectivity settings.";
+        setClientError(message);
+      }
+    },
+    [connect],
+  );
+
+  const stopConversation = useCallback(async () => {
+    responseActiveRef.current = false;
+    disconnect();
+    await playerRef.current.stop();
+    setStarted(false);
+    setAssistantState("idle");
+    setSessionReady(false);
+    setAiLevel(0);
+    setClientError(null);
+  }, [disconnect]);
+
   const toggleConversation = useCallback(async () => {
     if (started) {
-      responseActiveRef.current = false;
-      disconnect();
-      await playerRef.current.stop();
-      setStarted(false);
-      setAssistantState("idle");
-      setSessionReady(false);
-      setAiLevel(0);
-      setClientError(null);
+      await stopConversation();
       return;
     }
 
-    setClientError(null);
-    setAssistantState("connecting");
-    setSessionReady(false);
+    await startConversation(appliedInstructionMode);
+  }, [appliedInstructionMode, startConversation, started, stopConversation]);
 
-    try {
-      await playerRef.current.init();
-      await connect();
-      setStarted(true);
-    } catch (error) {
-      setAssistantState("error");
-      const message =
-        error instanceof Error
-          ? error.message
-          : "Unable to start voice session. Check frontend and backend connectivity settings.";
-      setClientError(message);
+  const applyInstructionChange = useCallback(async () => {
+    if (selectedInstructionMode === appliedInstructionMode) {
+      return;
     }
-  }, [connect, disconnect, started]);
+
+    setAppliedInstructionMode(selectedInstructionMode);
+    setTranscripts([]);
+    setClientError(null);
+    setAiLevel(0);
+
+    if (!started) {
+      return;
+    }
+
+    await stopConversation();
+    await startConversation(selectedInstructionMode);
+  }, [
+    appliedInstructionMode,
+    selectedInstructionMode,
+    startConversation,
+    started,
+    stopConversation,
+  ]);
 
   useLayoutEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -297,23 +344,22 @@ export function VoiceAssistantPanel() {
     () => Math.max(userLevel, aiLevel),
     [aiLevel, userLevel],
   );
+  const hasPendingInstructionChange =
+    selectedInstructionMode !== appliedInstructionMode;
   const displayedError = clientError ?? socketError ?? micError;
 
   return (
     <main className="min-h-screen bg-app px-4 py-8 text-slate-100 sm:px-8 lg:px-10">
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-8">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="mb-6">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-cyan-300">
                 Seaking AI Interview Studio
               </p>
               <h1 className="mt-2 text-2xl font-semibold text-slate-100 md:text-3xl">
-                Real-time Voice Practice with Tasnim
+                Real-time Voice Practice with {assistantName}
               </h1>
-            </div>
-            <div className="rounded-full border border-cyan-400/30 bg-slate-900/75 px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-cyan-200">
-              {STATUS_LABELS[assistantState]}
             </div>
           </div>
 
@@ -324,8 +370,8 @@ export function VoiceAssistantPanel() {
                 Live Audio Stream
               </span>
               <span className="flex items-center gap-2">
-                <BrainCircuit className="h-4 w-4" />
-                Barge-in Enabled
+                <ShieldCheck className="h-4 w-4" />
+                {isSecureContext ? "Secure context ready" : "HTTPS required"}
               </span>
             </div>
 
@@ -343,27 +389,64 @@ export function VoiceAssistantPanel() {
             </div>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => void toggleConversation()}
-              className="inline-flex items-center gap-2 rounded-full border border-cyan-300/50 bg-cyan-400/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-300/20"
-            >
-              {started ? (
-                <MicOff className="h-4 w-4" />
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-              {started ? "Stop Conversation" : "Start Conversation"}
-            </button>
+          <div className="mt-6 flex justify-center">
+            <div className="rounded-full border border-cyan-400/30 bg-slate-900/75 px-4 py-2 text-xs font-medium uppercase tracking-[0.16em] text-cyan-200">
+              {statusLabels[assistantState]}
+            </div>
+          </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/70 px-4 py-2 text-xs uppercase tracking-[0.12em] text-slate-300">
-              <Volume2 className="h-4 w-4" />
-              Low latency playback
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="flex justify-center">
+              <button
+                onClick={() => void toggleConversation()}
+                className="inline-flex items-center gap-2 rounded-full border border-cyan-300/50 bg-cyan-400/15 px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-300/20"
+              >
+                {started ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+                {started ? "Stop Conversation" : "Start Conversation"}
+              </button>
             </div>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-700/80 bg-slate-900/70 px-4 py-2 text-xs uppercase tracking-[0.12em] text-slate-300">
-              <ShieldCheck className="h-4 w-4" />
-              {isSecureContext ? "Secure context ready" : "HTTPS required"}
+            <div className="flex justify-center">
+              <div className="inline-flex overflow-hidden rounded-full border border-slate-700/80 bg-slate-900/70 p-1 text-xs uppercase tracking-[0.12em]">
+                <button
+                  onClick={() => setSelectedInstructionMode("interview-prep")}
+                  className={`rounded-full px-4 py-2 transition ${
+                    selectedInstructionMode === "interview-prep"
+                      ? "bg-cyan-400/20 text-cyan-100"
+                      : "text-slate-300 hover:text-slate-100"
+                  }`}
+                >
+                  Interview Prep
+                </button>
+                <button
+                  onClick={() => setSelectedInstructionMode("english-learning")}
+                  className={`rounded-full px-4 py-2 transition ${
+                    selectedInstructionMode === "english-learning"
+                      ? "bg-cyan-400/20 text-cyan-100"
+                      : "text-slate-300 hover:text-slate-100"
+                  }`}
+                >
+                  Learning English
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={() => void applyInstructionChange()}
+                disabled={!hasPendingInstructionChange}
+                className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold uppercase tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                  hasPendingInstructionChange
+                    ? "border-cyan-300/50 bg-cyan-400/15 text-cyan-100 hover:bg-cyan-300/20"
+                    : "border-slate-500/70 bg-slate-800/85 text-slate-100"
+                }`}
+              >
+                Apply Change
+              </button>
             </div>
           </div>
 
@@ -380,8 +463,8 @@ export function VoiceAssistantPanel() {
             Conversation Feed
           </h2>
           <p className="mt-2 text-sm text-slate-300">
-            Your speech and Tasnim&apos;s response transcripts appear here in
-            real-time.
+            Your speech and {assistantName}&apos;s response transcripts appear
+            here in real-time.
           </p>
 
           <div className="mt-5 flex-1 space-y-3 overflow-y-auto pr-1">
@@ -400,7 +483,7 @@ export function VoiceAssistantPanel() {
                   }`}
                 >
                   <p className="mb-1 text-[11px] uppercase tracking-[0.14em] opacity-75">
-                    {item.role === "user" ? "Monowar" : "Tasnim"}
+                    {item.role === "user" ? "Monowar" : assistantName}
                   </p>
                   <p>{item.text}</p>
                 </div>

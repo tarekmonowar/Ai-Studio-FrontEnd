@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { resolveVoiceSocketUrl } from "@/config/runtime";
-import type { ServerEvent } from "@/types/voice";
+import type { InstructionMode, ServerEvent } from "@/types/voice";
 
 type ConnectionStatus =
   | "idle"
@@ -19,7 +19,7 @@ interface UseVoiceSocketOptions {
 interface UseVoiceSocketResult {
   status: ConnectionStatus;
   error: string | null;
-  connect: () => Promise<void>;
+  connect: (instructionMode?: InstructionMode) => Promise<void>;
   disconnect: () => void;
   sendAudioChunk: (chunk: ArrayBuffer) => void;
   cancelAssistant: () => void;
@@ -95,96 +95,104 @@ export function useVoiceSocket({
     return resolveVoiceSocketUrl();
   }, []);
 
-  const connect = useCallback(async () => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      return;
-    }
+  const connect = useCallback(
+    async (instructionMode?: InstructionMode) => {
+      if (
+        socketRef.current &&
+        socketRef.current.readyState === WebSocket.OPEN
+      ) {
+        return;
+      }
 
-    if (!wsUrl) {
-      const message =
-        "Voice backend URL is missing. Configure NEXT_PUBLIC_BACKEND_HTTP_URL or NEXT_PUBLIC_BACKEND_WS_URL.";
-      setStatus("error");
-      setError(message);
-      throw new Error(message);
-    }
-
-    setStatus("connecting");
-    setError(null);
-
-    await new Promise<void>((resolve, reject) => {
-      let settled = false;
-      const socket = new WebSocket(wsUrl);
-      socket.binaryType = "arraybuffer";
-
-      const rejectOnce = (message: string) => {
-        if (settled) return;
-        settled = true;
-        reject(new Error(message));
-      };
-
-      socket.onopen = () => {
-        settled = true;
-        socketRef.current = socket;
-        setStatus("connected");
-        socket.send(JSON.stringify({ type: "session.start" }));
-        resolve();
-      };
-
-      socket.onerror = () => {
-        const message = mapTransportError(wsUrl);
+      if (!wsUrl) {
+        const message =
+          "Voice backend URL is missing. Configure NEXT_PUBLIC_BACKEND_HTTP_URL or NEXT_PUBLIC_BACKEND_WS_URL.";
         setStatus("error");
         setError(message);
-        rejectOnce(message);
-      };
+        throw new Error(message);
+      }
 
-      socket.onclose = (event) => {
-        socketRef.current = null;
+      setStatus("connecting");
+      setError(null);
 
-        if (!settled) {
-          const message = mapCloseError(event.code, event.reason, wsUrl);
+      await new Promise<void>((resolve, reject) => {
+        let settled = false;
+        const socket = new WebSocket(wsUrl);
+        socket.binaryType = "arraybuffer";
+
+        const rejectOnce = (message: string) => {
+          if (settled) return;
+          settled = true;
+          reject(new Error(message));
+        };
+
+        socket.onopen = () => {
+          settled = true;
+          socketRef.current = socket;
+          setStatus("connected");
+          socket.send(
+            JSON.stringify({ type: "session.start", instructionMode }),
+          );
+          resolve();
+        };
+
+        socket.onerror = () => {
+          const message = mapTransportError(wsUrl);
           setStatus("error");
           setError(message);
           rejectOnce(message);
-          return;
-        }
+        };
 
-        setStatus((current) =>
-          current === "error" ? "error" : "disconnected",
-        );
-      };
+        socket.onclose = (event) => {
+          socketRef.current = null;
 
-      socket.onmessage = (message) => {
-        if (message.data instanceof ArrayBuffer) {
-          onAudioChunk(message.data);
-          return;
-        }
-
-        if (message.data instanceof Blob) {
-          void message.data.arrayBuffer().then(onAudioChunk);
-          return;
-        }
-
-        try {
-          const parsed = JSON.parse(message.data as string) as ServerEvent;
-          if (parsed.type === "error") {
-            const readable = withHint(
-              normalizeBackendError(parsed.message),
-              parsed.hint,
-            );
-            setError(readable);
+          if (!settled) {
+            const message = mapCloseError(event.code, event.reason, wsUrl);
             setStatus("error");
-            onServerEvent({ ...parsed, message: readable });
+            setError(message);
+            rejectOnce(message);
             return;
           }
-          onServerEvent(parsed);
-        } catch {
-          setError(
-            "Invalid message received from backend. Check backend logs and restart the server.",
+
+          setStatus((current) =>
+            current === "error" ? "error" : "disconnected",
           );
-        }
-      };
-    });
-  }, [onAudioChunk, onServerEvent, wsUrl]);
+        };
+
+        socket.onmessage = (message) => {
+          if (message.data instanceof ArrayBuffer) {
+            onAudioChunk(message.data);
+            return;
+          }
+
+          if (message.data instanceof Blob) {
+            void message.data.arrayBuffer().then(onAudioChunk);
+            return;
+          }
+
+          try {
+            const parsed = JSON.parse(message.data as string) as ServerEvent;
+            if (parsed.type === "error") {
+              const readable = withHint(
+                normalizeBackendError(parsed.message),
+                parsed.hint,
+              );
+              setError(readable);
+              setStatus("error");
+              onServerEvent({ ...parsed, message: readable });
+              return;
+            }
+            onServerEvent(parsed);
+          } catch {
+            setError(
+              "Invalid message received from backend. Check backend logs and restart the server.",
+            );
+          }
+        };
+      });
+    },
+    [onAudioChunk, onServerEvent, wsUrl],
+  );
 
   const disconnect = useCallback(() => {
     if (!socketRef.current) {
