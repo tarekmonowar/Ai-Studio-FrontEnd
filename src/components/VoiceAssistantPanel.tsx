@@ -1,6 +1,7 @@
 "use client";
 
-import { Mic, MicOff, Radio, ShieldCheck } from "lucide-react";
+import { Mail, Mic, MicOff, Radio, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import {
   useCallback,
   useEffect,
@@ -20,18 +21,73 @@ import type {
   SpeakerProfile,
   TranscriptItem,
 } from "@/types/voice";
+import tmProfile from "@/public/tm.png";
 import { VoiceWave } from "./VoiceWave";
 
 const MAX_TRANSCRIPTS = 8;
 const DEFAULT_INSTRUCTION_MODE: InstructionMode = "interview-prep";
 const DEFAULT_SPEAKER_PROFILE: SpeakerProfile = "muntaha";
-const INTERVIEW_FLOW_STEPS = [
-  "Interpersonal block: 4-5 unique questions",
-  "HTML 3-4, CSS 3-4, JavaScript 7-8",
-  "TypeScript 3-4, React 6-7, Next.js 5-6",
-  "Node.js, Express.js, MongoDB, PostgreSQL, Docker: 4-8 each",
-  "Specific topic request: 10-15 from requested technology",
+const TOPIC_PHASE_MATCHERS = [
+  {
+    label: "JavaScript round",
+    pattern: /\bjavascript\b|\bjava\s*script\b|\bjs\b/i,
+  },
+  { label: "React round", pattern: /\breact\b/i },
+  { label: "Next.js round", pattern: /\bnext(\.?\s*js)?\b|\bnextjs\b/i },
+  {
+    label: "TypeScript round",
+    pattern: /\btypescript\b|\btype\s*script\b|\bts\b/i,
+  },
+  { label: "HTML round", pattern: /\bhtml\b/i },
+  { label: "CSS round", pattern: /\bcss\b/i },
+  { label: "Node.js round", pattern: /\bnode(\.?\s*js)?\b|\bnodejs\b/i },
+  {
+    label: "Express.js round",
+    pattern: /\bexpress(\.?\s*js)?\b|\bexpressjs\b/i,
+  },
+  { label: "MongoDB round", pattern: /\bmongodb\b|\bmongo\b/i },
+  {
+    label: "PostgreSQL round",
+    pattern: /\bpostgresql\b|\bpostgres\b|\bpostgre\b/i,
+  },
+  { label: "Docker round", pattern: /\bdocker\b/i },
+  { label: "Redux round", pattern: /\bredux\b/i },
 ] as const;
+
+function resolveInterviewPhaseLabel(
+  transcripts: TranscriptItem[],
+  assistantQuestionCount: number,
+): string {
+  if (assistantQuestionCount === 0) {
+    return "Opening";
+  }
+
+  const recentTurns = transcripts.slice(-10).reverse();
+
+  for (const turn of recentTurns) {
+    const text = turn.text;
+
+    for (const matcher of TOPIC_PHASE_MATCHERS) {
+      if (matcher.pattern.test(text)) {
+        return matcher.label;
+      }
+    }
+
+    if (
+      /(interpersonal|behavioral|behavioural|tell me about yourself|strength|weakness)/i.test(
+        text,
+      )
+    ) {
+      return "Interpersonal round";
+    }
+
+    if (/(technical|technology|topic)/i.test(text)) {
+      return "Technical round";
+    }
+  }
+
+  return "Interview round";
+}
 
 function formatDuration(totalSeconds: number): string {
   const minutes = Math.floor(totalSeconds / 60)
@@ -93,6 +149,7 @@ export function VoiceAssistantPanel() {
   const assistantDoneAtRef = useRef(0);
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
   const sessionStartedAtRef = useRef<number | null>(null);
+  const accumulatedElapsedSecondsRef = useRef(0);
 
   const assistantName = useMemo(
     () => (appliedInstructionMode === "english-learning" ? "Ava" : "Omi"),
@@ -274,8 +331,6 @@ export function VoiceAssistantPanel() {
 
   useEffect(() => {
     if (!started) {
-      sessionStartedAtRef.current = null;
-      setElapsedSeconds(0);
       return;
     }
 
@@ -291,7 +346,7 @@ export function VoiceAssistantPanel() {
       const elapsed = Math.floor(
         (Date.now() - sessionStartedAtRef.current) / 1000,
       );
-      setElapsedSeconds(elapsed);
+      setElapsedSeconds(accumulatedElapsedSecondsRef.current + elapsed);
     }, 1000);
 
     return () => {
@@ -326,12 +381,19 @@ export function VoiceAssistantPanel() {
   );
 
   const stopConversation = useCallback(async () => {
+    if (sessionStartedAtRef.current !== null) {
+      const elapsed = Math.floor(
+        (Date.now() - sessionStartedAtRef.current) / 1000,
+      );
+      accumulatedElapsedSecondsRef.current += elapsed;
+      sessionStartedAtRef.current = null;
+      setElapsedSeconds(accumulatedElapsedSecondsRef.current);
+    }
+
     responseActiveRef.current = false;
     disconnect();
     await playerRef.current.stop();
     setStarted(false);
-    sessionStartedAtRef.current = null;
-    setElapsedSeconds(0);
     setAssistantState("idle");
     setSessionReady(false);
     setAiLevel(0);
@@ -365,6 +427,9 @@ export function VoiceAssistantPanel() {
     setAppliedInstructionMode(selectedInstructionMode);
     setAppliedSpeakerProfile(selectedSpeakerProfile);
     setTranscripts([]);
+    sessionStartedAtRef.current = null;
+    accumulatedElapsedSecondsRef.current = 0;
+    setElapsedSeconds(0);
     setClientError(null);
     setAiLevel(0);
 
@@ -412,16 +477,8 @@ export function VoiceAssistantPanel() {
       return "Language coaching";
     }
 
-    if (assistantQuestionCount === 0) {
-      return "Opening";
-    }
-
-    if (assistantQuestionCount <= 5) {
-      return "Interpersonal round";
-    }
-
-    return "Technical round";
-  }, [appliedInstructionMode, assistantQuestionCount]);
+    return resolveInterviewPhaseLabel(transcripts, assistantQuestionCount);
+  }, [appliedInstructionMode, assistantQuestionCount, transcripts]);
 
   return (
     <main className="min-h-screen bg-app px-4 py-8 text-slate-100 sm:px-8 lg:px-10">
@@ -576,96 +633,150 @@ export function VoiceAssistantPanel() {
           ) : null}
         </section>
 
-        <aside className="flex max-h-[calc(100vh-4rem)] flex-col rounded-3xl border border-slate-700/70 bg-slate-900/60 p-5 backdrop-blur md:p-6">
-          <h2 className="text-lg font-semibold text-slate-100">
-            Conversation Feed
-          </h2>
-          <p className="mt-2 text-sm text-slate-300">
-            Your speech and {assistantName}&apos;s response transcripts appear
-            here in real-time.
-          </p>
+        <aside className="flex flex-col gap-4 lg:max-h-[calc(100vh-4rem)] lg:min-h-[620px]">
+          <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-5 backdrop-blur md:p-6">
+            <div className="flex items-center justify-between">
+              <p className="text-xs uppercase tracking-[0.14em] text-cyan-200">
+                {appliedInstructionMode === "interview-prep"
+                  ? "Interview room brief"
+                  : "Session brief"}
+              </p>
+              <span
+                className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${
+                  sessionReady
+                    ? "bg-emerald-500/20 text-emerald-200"
+                    : "bg-slate-700/60 text-slate-300"
+                }`}
+              >
+                {sessionReady ? "Live" : "Standby"}
+              </span>
+            </div>
 
-          {appliedInstructionMode === "interview-prep" ? (
-            <section className="mt-4 rounded-2xl border border-cyan-400/25 bg-slate-950/55 p-4">
-              <div className="flex items-center justify-between">
-                <p className="text-xs uppercase tracking-[0.14em] text-cyan-200">
-                  Interview room brief
+            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
+              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+                <p className="text-slate-400">Phase</p>
+                <p className="mt-1 font-semibold text-slate-100">
+                  {interviewPhaseLabel}
                 </p>
-                <span
-                  className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${
-                    sessionReady
-                      ? "bg-emerald-500/20 text-emerald-200"
-                      : "bg-slate-700/60 text-slate-300"
-                  }`}
-                >
-                  {sessionReady ? "Live" : "Standby"}
-                </span>
               </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                <div className="rounded-xl border border-slate-700/80 bg-slate-900/70 p-2">
-                  <p className="text-slate-400">Phase</p>
-                  <p className="mt-1 font-semibold text-slate-100">
-                    {interviewPhaseLabel}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-700/80 bg-slate-900/70 p-2">
-                  <p className="text-slate-400">Session time</p>
-                  <p className="mt-1 font-semibold text-slate-100">
-                    {formatDuration(elapsedSeconds)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-700/80 bg-slate-900/70 p-2">
-                  <p className="text-slate-400">Questions asked</p>
-                  <p className="mt-1 font-semibold text-cyan-100">
-                    {assistantQuestionCount}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-700/80 bg-slate-900/70 p-2">
-                  <p className="text-slate-400">Your responses</p>
-                  <p className="mt-1 font-semibold text-emerald-100">
-                    {userResponseCount}
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-3 rounded-xl border border-slate-700/80 bg-slate-900/65 p-3">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-slate-300">
-                  Structured flow
+              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+                <p className="text-slate-400">Session time</p>
+                <p className="mt-1 font-semibold text-slate-100">
+                  {formatDuration(elapsedSeconds)}
                 </p>
-                <ol className="mt-2 space-y-1 text-xs text-slate-200">
-                  {INTERVIEW_FLOW_STEPS.map((step) => (
-                    <li key={step}>{step}</li>
-                  ))}
-                </ol>
               </div>
-            </section>
-          ) : null}
+              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+                <p className="text-slate-400">Questions asked</p>
+                <p className="mt-1 font-semibold text-cyan-100">
+                  {assistantQuestionCount}
+                </p>
+              </div>
+              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+                <p className="text-slate-400">Your responses</p>
+                <p className="mt-1 font-semibold text-emerald-100">
+                  {userResponseCount}
+                </p>
+              </div>
+            </div>
 
-          <div className="mt-5 flex-1 space-y-3 overflow-y-auto pr-1">
-            {transcripts.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/55 p-4 text-sm text-slate-400">
-                Start a conversation to see the live transcript.
-              </div>
-            ) : (
-              transcripts.map((item) => (
-                <div
-                  key={item.id}
-                  className={`rounded-2xl p-3 text-sm leading-relaxed ${
-                    item.role === "user"
-                      ? "border border-cyan-500/30 bg-cyan-500/10 text-cyan-100"
-                      : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
-                  }`}
-                >
-                  <p className="mb-1 text-[11px] uppercase tracking-[0.14em] opacity-75">
-                    {item.role === "user" ? "Monowar" : assistantName}
+            <div className="mt-3 rounded-xl border border-cyan-400/20 bg-slate-900/65 p-3">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-slate-300">
+                Developer
+              </p>
+              <div className="mt-3 flex items-center gap-5 rounded-xl border border-cyan-400/20 bg-slate-950/70 p-4 md:p-5">
+                <Image
+                  src={tmProfile}
+                  alt="Tarek Monowar"
+                  width={72}
+                  height={72}
+                  className="h-[72px] w-[72px] rounded-full border border-cyan-400/40 object-cover"
+                  priority={false}
+                />
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="truncate text-sm font-semibold text-slate-100">
+                    Tarek Monowar
                   </p>
-                  <p>{item.text}</p>
+                  <p className="mt-1 text-xs text-slate-300">
+                    Full Stack developer
+                  </p>
+                  <div className="mt-2 flex items-center justify-start gap-3">
+                    <a
+                      href="https://www.linkedin.com/in/tarekmonowar/"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="LinkedIn"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-600/80 bg-slate-900/80 text-cyan-200 transition hover:border-cyan-300/70 hover:text-cyan-100"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-5 w-5 fill-current"
+                      >
+                        <path d="M4.98 3.5C4.98 2.67 5.65 2 6.48 2h11.04c.83 0 1.5.67 1.5 1.5v17c0 .83-.67 1.5-1.5 1.5H6.48c-.83 0-1.5-.67-1.5-1.5v-17Zm4.26 15.5v-9H6.26v9h2.98Zm-1.5-10.24c.95 0 1.54-.63 1.54-1.42-.02-.81-.6-1.42-1.53-1.42-.92 0-1.53.61-1.53 1.42 0 .79.59 1.42 1.5 1.42h.02ZM17.74 19v-4.97c0-2.66-1.42-3.9-3.31-3.9-1.53 0-2.21.84-2.59 1.43v-1.22H8.86c.04.81 0 8.66 0 8.66h2.98v-4.84c0-.26.02-.52.1-.7.21-.52.69-1.06 1.5-1.06 1.06 0 1.49.8 1.49 1.98V19h2.81Z" />
+                      </svg>
+                    </a>
+                    <a
+                      href="https://www.facebook.com/tarekmonowar53"
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label="Facebook"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-600/80 bg-slate-900/80 text-cyan-200 transition hover:border-cyan-300/70 hover:text-cyan-100"
+                    >
+                      <svg
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        className="h-5 w-5 fill-current"
+                      >
+                        <path d="M22 12.07C22 6.5 17.52 2 12 2S2 6.5 2 12.07C2 17.1 5.66 21.27 10.44 22v-7.04H7.9V12.1h2.54V9.93c0-2.52 1.49-3.92 3.78-3.92 1.09 0 2.23.2 2.23.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.86h2.78l-.44 2.86h-2.34V22C18.34 21.27 22 17.1 22 12.07Z" />
+                      </svg>
+                    </a>
+                    <a
+                      href="mailto:tarekmonowar353@gmail.com"
+                      aria-label="Email"
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-600/80 bg-slate-900/80 text-cyan-200 transition hover:border-cyan-300/70 hover:text-cyan-100"
+                    >
+                      <Mail className="h-5 w-5" />
+                    </a>
+                  </div>
                 </div>
-              ))
-            )}
-            <div ref={transcriptEndRef} />
-          </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="flex min-h-[380px] flex-1 flex-col rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-5 backdrop-blur md:p-6 lg:min-h-0">
+            <h2 className="text-lg font-semibold text-slate-100">
+              Conversation Feed
+            </h2>
+            <p className="mt-2 text-sm text-slate-300">
+              Your speech and {assistantName}&apos;s response transcripts appear
+              here in real-time.
+            </p>
+
+            <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+              {transcripts.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/55 p-4 text-sm text-slate-400">
+                  Start a conversation to see the live transcript.
+                </div>
+              ) : (
+                transcripts.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`rounded-2xl p-3 text-sm leading-relaxed ${
+                      item.role === "user"
+                        ? "border border-cyan-500/30 bg-cyan-500/10 text-cyan-100"
+                        : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
+                    }`}
+                  >
+                    <p className="mb-1 text-[11px] uppercase tracking-[0.14em] opacity-75">
+                      {item.role === "user" ? "Monowar" : assistantName}
+                    </p>
+                    <p>{item.text}</p>
+                  </div>
+                ))
+              )}
+              <div ref={transcriptEndRef} />
+            </div>
+          </section>
         </aside>
       </div>
     </main>
