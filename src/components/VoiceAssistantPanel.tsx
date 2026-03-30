@@ -28,66 +28,28 @@ import { VoiceWave } from "./VoiceWave";
 const MAX_TRANSCRIPTS = 8;
 const DEFAULT_INSTRUCTION_MODE: InstructionMode = "interview-prep";
 const DEFAULT_SPEAKER_PROFILE: SpeakerProfile = "muntaha";
-const TOPIC_PHASE_MATCHERS = [
-  {
-    label: "JavaScript round",
-    pattern: /\bjavascript\b|\bjava\s*script\b|\bjs\b/i,
-  },
-  { label: "React round", pattern: /\breact\b/i },
-  { label: "Next.js round", pattern: /\bnext(\.?\s*js)?\b|\bnextjs\b/i },
-  {
-    label: "TypeScript round",
-    pattern: /\btypescript\b|\btype\s*script\b|\bts\b/i,
-  },
-  { label: "HTML round", pattern: /\bhtml\b/i },
-  { label: "CSS round", pattern: /\bcss\b/i },
-  { label: "Node.js round", pattern: /\bnode(\.?\s*js)?\b|\bnodejs\b/i },
-  {
-    label: "Express.js round",
-    pattern: /\bexpress(\.?\s*js)?\b|\bexpressjs\b/i,
-  },
-  { label: "MongoDB round", pattern: /\bmongodb\b|\bmongo\b/i },
-  {
-    label: "PostgreSQL round",
-    pattern: /\bpostgresql\b|\bpostgres\b|\bpostgre\b/i,
-  },
-  { label: "Docker round", pattern: /\bdocker\b/i },
-  { label: "Redux round", pattern: /\bredux\b/i },
-] as const;
+const BACKEND_PHASE_LABELS: Record<string, string> = {
+  "interview-prep": "Opening",
+  "english-learning": "Language coaching",
+  "interpersonal": "Interpersonal round",
+  "technical-general": "Technical round",
+  "HTML": "HTML round",
+  "CSS": "CSS round",
+  "JavaScript": "JavaScript round",
+  "TypeScript": "TypeScript round",
+  "React": "React round",
+  "Next.js": "Next.js round",
+  "Node.js": "Node.js round",
+  "Express.js": "Express.js round",
+  "MongoDB": "MongoDB round",
+  "PostgreSQL": "PostgreSQL round",
+  "Docker": "Docker round",
+  "Redux": "Redux round",
+  "default": "Interview round",
+};
 
-function resolveInterviewPhaseLabel(
-  transcripts: TranscriptItem[],
-  assistantQuestionCount: number,
-): string {
-  if (assistantQuestionCount === 0) {
-    return "Opening";
-  }
-
-  const recentTurns = transcripts.slice(-10).reverse();
-
-  for (const turn of recentTurns) {
-    const text = turn.text;
-
-    for (const matcher of TOPIC_PHASE_MATCHERS) {
-      if (matcher.pattern.test(text)) {
-        return matcher.label;
-      }
-    }
-
-    if (
-      /(interpersonal|behavioral|behavioural|tell me about yourself|strength|weakness)/i.test(
-        text,
-      )
-    ) {
-      return "Interpersonal round";
-    }
-
-    if (/(technical|technology|topic)/i.test(text)) {
-      return "Technical round";
-    }
-  }
-
-  return "Interview round";
+function resolvePhaseLabel(backendPhase: string): string {
+  return BACKEND_PHASE_LABELS[backendPhase] ?? "Interview round";
 }
 
 function formatDuration(totalSeconds: number): string {
@@ -159,6 +121,7 @@ export function VoiceAssistantPanel() {
   const [appliedSpeakerProfile, setAppliedSpeakerProfile] =
     useState<SpeakerProfile>(DEFAULT_SPEAKER_PROFILE);
   const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
+  const [backendPhase, setBackendPhase] = useState("interview-prep");
 
   const playerRef = useRef(new AudioPlayer());
   const assistantStateRef = useRef<AssistantState>("idle");
@@ -250,6 +213,9 @@ export function VoiceAssistantPanel() {
             text: event.text,
           }),
         );
+        break;
+      case "phase.update":
+        setBackendPhase(event.phase);
         break;
       case "error":
         responseActiveRef.current = false;
@@ -462,6 +428,11 @@ export function VoiceAssistantPanel() {
     setRemainingSeconds(null);
     setClientError(null);
     setAiLevel(0);
+    setBackendPhase(
+      selectedInstructionMode === "english-learning"
+        ? "english-learning"
+        : "interview-prep",
+    );
 
     if (!started) {
       return;
@@ -502,13 +473,10 @@ export function VoiceAssistantPanel() {
     () => transcripts.filter((item) => item.role === "user").length,
     [transcripts],
   );
-  const interviewPhaseLabel = useMemo(() => {
-    if (appliedInstructionMode !== "interview-prep") {
-      return "Language coaching";
-    }
-
-    return resolveInterviewPhaseLabel(transcripts, assistantQuestionCount);
-  }, [appliedInstructionMode, assistantQuestionCount, transcripts]);
+  const interviewPhaseLabel = useMemo(
+    () => resolvePhaseLabel(backendPhase),
+    [backendPhase],
+  );
   const hasReachedTimeLimit =
     started && (remainingSeconds === null || remainingSeconds <= 0);
   const remainingTimeTextClass = hasReachedTimeLimit

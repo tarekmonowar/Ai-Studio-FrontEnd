@@ -35,5 +35,6 @@ export type ServerEvent =
   | { type: "transcript.assistant"; text: string }
   | { type: "vad.server.speech_started" }
   | { type: "vad.server.speech_stopped" }
+  | { type: "phase.update"; phase: string }
   | { type: "pong" }
   | { type: "error"; message: string; code?: string; hint?: string };
