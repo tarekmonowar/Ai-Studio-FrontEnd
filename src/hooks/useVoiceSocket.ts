@@ -2,7 +2,11 @@
 
 import { useCallback, useMemo, useRef, useState } from "react";
 import { resolveVoiceSocketUrl } from "@/config/runtime";
-import type { InstructionMode, ServerEvent } from "@/types/voice";
+import type {
+  InstructionMode,
+  ServerEvent,
+  SpeakerProfile,
+} from "@/types/voice";
 
 type ConnectionStatus =
   | "idle"
@@ -19,7 +23,10 @@ interface UseVoiceSocketOptions {
 interface UseVoiceSocketResult {
   status: ConnectionStatus;
   error: string | null;
-  connect: (instructionMode?: InstructionMode) => Promise<void>;
+  connect: (
+    instructionMode?: InstructionMode,
+    speakerProfile?: SpeakerProfile,
+  ) => Promise<void>;
   disconnect: () => void;
   sendAudioChunk: (chunk: ArrayBuffer) => void;
   cancelAssistant: () => void;
@@ -96,7 +103,10 @@ export function useVoiceSocket({
   }, []);
 
   const connect = useCallback(
-    async (instructionMode?: InstructionMode) => {
+    async (
+      instructionMode?: InstructionMode,
+      speakerProfile?: SpeakerProfile,
+    ) => {
       if (
         socketRef.current &&
         socketRef.current.readyState === WebSocket.OPEN
@@ -131,7 +141,11 @@ export function useVoiceSocket({
           socketRef.current = socket;
           setStatus("connected");
           socket.send(
-            JSON.stringify({ type: "session.start", instructionMode }),
+            JSON.stringify({
+              type: "session.start",
+              instructionMode,
+              speakerProfile,
+            }),
           );
           resolve();
         };

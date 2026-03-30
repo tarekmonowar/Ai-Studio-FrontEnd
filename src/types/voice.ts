@@ -9,6 +9,7 @@ export type AssistantState =
   | "disconnected";
 
 export type InstructionMode = "interview-prep" | "english-learning";
+export type SpeakerProfile = "monowar" | "muntaha";
 
 export type TranscriptRole = "user" | "assistant";
 

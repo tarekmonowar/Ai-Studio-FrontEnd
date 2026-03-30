@@ -55,7 +55,7 @@ export function VoiceWave({ level, state }: VoiceWaveProps) {
     const draw = (time: number) => {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
-      const centerY = height / 2;
+      const baselineY = Math.floor(height * 0.5);
       const currentState = stateRef.current;
       const targetLevel = Math.max(
         MODE_BASELINE[currentState],
@@ -80,33 +80,39 @@ export function VoiceWave({ level, state }: VoiceWaveProps) {
       const amplitude =
         Math.max(MODE_BASELINE[currentState], normalized) * pulse * thinkingMod;
 
-      const bars = 58;
+      const bars = 64;
       const gap = width / bars;
-      const barWidth = Math.max(2, gap * 0.6);
+      const spikeWidth = Math.max(1.35, gap * 0.48);
+      context.lineWidth = spikeWidth;
+      context.lineCap = "round";
 
       for (let i = 0; i < bars; i += 1) {
         const x = i * gap;
+        const lineX = x + spikeWidth / 2;
         const normalizedX = i / bars;
         const waveA = Math.sin(normalizedX * Math.PI * 8 + time * 0.008);
         const waveB = Math.sin(normalizedX * Math.PI * 16 - time * 0.004);
         const envelope = Math.sin(normalizedX * Math.PI);
 
         const strength = 0.45 + Math.abs(waveA * 0.7 + waveB * 0.3);
-        const barHeight = 8 + envelope * amplitude * 120 * strength;
+        const barHeight = 3 + envelope * amplitude * 48 * strength;
 
-        const gradient = context.createLinearGradient(
+        const fullGradient = context.createLinearGradient(
           x,
-          centerY - barHeight,
+          baselineY - barHeight,
           x,
-          centerY + barHeight,
+          baselineY + barHeight,
         );
-        gradient.addColorStop(0, "rgba(45, 212, 191, 0.08)");
-        gradient.addColorStop(0.35, "rgba(45, 212, 191, 0.95)");
-        gradient.addColorStop(0.65, "rgba(125, 211, 252, 0.95)");
-        gradient.addColorStop(1, "rgba(125, 211, 252, 0.08)");
+        fullGradient.addColorStop(0, "rgba(255, 62, 182, 0.98)");
+        fullGradient.addColorStop(0.45, "rgba(221, 74, 255, 0.95)");
+        fullGradient.addColorStop(0.55, "rgba(77, 186, 255, 0.95)");
+        fullGradient.addColorStop(1, "rgba(43, 233, 255, 0.98)");
 
-        context.fillStyle = gradient;
-        context.fillRect(x, centerY - barHeight / 2, barWidth, barHeight);
+        context.strokeStyle = fullGradient;
+        context.beginPath();
+        context.moveTo(lineX, baselineY - barHeight);
+        context.lineTo(lineX, baselineY + barHeight);
+        context.stroke();
       }
 
       frameId = requestAnimationFrame(draw);
@@ -125,7 +131,7 @@ export function VoiceWave({ level, state }: VoiceWaveProps) {
       <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-cyan-400/20 blur-2xl" />
       <canvas
         ref={canvasRef}
-        className="relative h-[180px] w-full rounded-2xl border border-cyan-400/25 bg-slate-950/55"
+        className="relative h-[180px] w-full rounded-2xl border border-indigo-900 bg-[#090e38]"
       />
     </div>
   );
