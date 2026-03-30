@@ -21,6 +21,7 @@ import type {
   SpeakerProfile,
   TranscriptItem,
 } from "@/types/voice";
+import studioStar from "@/public/star.svg";
 import tmProfile from "@/public/tm.png";
 import { VoiceWave } from "./VoiceWave";
 
@@ -100,12 +101,19 @@ function formatDuration(totalSeconds: number): string {
   return `${minutes}:${seconds}`;
 }
 
-function formatRemainingDuration(totalSeconds: number | null): string {
-  if (totalSeconds === null) {
-    return "Unlimited";
+function formatRemainingDuration(
+  totalSeconds: number | null,
+  hasStartedSession: boolean,
+): string {
+  if (!hasStartedSession) {
+    return "00:00";
   }
 
-  return formatDuration(Math.max(0, totalSeconds));
+  if (totalSeconds === null || totalSeconds <= 0) {
+    return "Limit reached";
+  }
+
+  return formatDuration(totalSeconds);
 }
 
 function getStatusLabels(
@@ -136,6 +144,7 @@ function nextTranscript(
 
 export function VoiceAssistantPanel() {
   const [started, setStarted] = useState(false);
+  const [isTogglingConversation, setIsTogglingConversation] = useState(false);
   const [assistantState, setAssistantState] = useState<AssistantState>("idle");
   const [sessionReady, setSessionReady] = useState(false);
   const [transcripts, setTranscripts] = useState<TranscriptItem[]>([]);
@@ -153,6 +162,7 @@ export function VoiceAssistantPanel() {
 
   const playerRef = useRef(new AudioPlayer());
   const assistantStateRef = useRef<AssistantState>("idle");
+  const manualStopRef = useRef(false);
   const responseActiveRef = useRef(false);
   const assistantDoneAtRef = useRef(0);
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
@@ -169,6 +179,7 @@ export function VoiceAssistantPanel() {
   const handleServerEvent = useCallback((event: ServerEvent) => {
     switch (event.type) {
       case "session.ready":
+        manualStopRef.current = false;
         setSessionReady(true);
         setRemainingSeconds(
           typeof event.rateLimitRemainingSeconds === "number"
@@ -218,7 +229,9 @@ export function VoiceAssistantPanel() {
       case "session.closed":
         responseActiveRef.current = false;
         setSessionReady(false);
-        setAssistantState("disconnected");
+        if (!manualStopRef.current) {
+          setAssistantState("disconnected");
+        }
         break;
       case "transcript.user":
         setTranscripts((prev) =>
@@ -241,6 +254,9 @@ export function VoiceAssistantPanel() {
       case "error":
         responseActiveRef.current = false;
         setSessionReady(false);
+        if (manualStopRef.current) {
+          break;
+        }
         setAssistantState("error");
         setClientError(event.message);
         break;
@@ -316,7 +332,11 @@ export function VoiceAssistantPanel() {
       setAssistantState("connecting");
     }
 
-    if (status === "disconnected" && assistantState !== "error") {
+    if (
+      status === "disconnected" &&
+      assistantState !== "error" &&
+      !manualStopRef.current
+    ) {
       setAssistantState("disconnected");
     }
   }, [assistantState, started, status]);
@@ -341,7 +361,7 @@ export function VoiceAssistantPanel() {
   }, [disconnect]);
 
   useEffect(() => {
-    if (!started || !sessionReady || remainingSeconds === null) {
+    if (!started || !sessionReady) {
       return;
     }
 
@@ -358,13 +378,14 @@ export function VoiceAssistantPanel() {
     return () => {
       window.clearInterval(timer);
     };
-  }, [remainingSeconds, sessionReady, started]);
+  }, [sessionReady, started]);
 
   const startConversation = useCallback(
     async (
       instructionMode: InstructionMode,
       speakerProfile: SpeakerProfile,
     ) => {
+      manualStopRef.current = false;
       setClientError(null);
       setAssistantState("connecting");
       setSessionReady(false);
@@ -387,27 +408,40 @@ export function VoiceAssistantPanel() {
   );
 
   const stopConversation = useCallback(async () => {
+    manualStopRef.current = true;
     responseActiveRef.current = false;
-    disconnect();
-    await playerRef.current.stop();
     setStarted(false);
     setAssistantState("idle");
     setSessionReady(false);
     setAiLevel(0);
     setClientError(null);
     setRemainingSeconds(null);
+    disconnect();
+    await playerRef.current.stop();
+    manualStopRef.current = false;
   }, [disconnect]);
 
   const toggleConversation = useCallback(async () => {
-    if (started) {
-      await stopConversation();
+    if (isTogglingConversation) {
       return;
     }
 
-    await startConversation(appliedInstructionMode, appliedSpeakerProfile);
+    setIsTogglingConversation(true);
+
+    try {
+      if (started) {
+        await stopConversation();
+        return;
+      }
+
+      await startConversation(appliedInstructionMode, appliedSpeakerProfile);
+    } finally {
+      setIsTogglingConversation(false);
+    }
   }, [
     appliedInstructionMode,
     appliedSpeakerProfile,
+    isTogglingConversation,
     startConversation,
     started,
     stopConversation,
@@ -475,12 +509,31 @@ export function VoiceAssistantPanel() {
 
     return resolveInterviewPhaseLabel(transcripts, assistantQuestionCount);
   }, [appliedInstructionMode, assistantQuestionCount, transcripts]);
+  const hasReachedTimeLimit =
+    started && (remainingSeconds === null || remainingSeconds <= 0);
+  const remainingTimeTextClass = hasReachedTimeLimit
+    ? "mt-1 font-semibold text-rose-400"
+    : "mt-1 font-semibold text-cyan-100";
 
   return (
-    <main className="min-h-screen bg-app px-4 py-8 text-slate-100 sm:px-8 lg:px-10">
+    <main className="min-h-screen bg-app px-4 py-3 text-slate-100 sm:px-8 lg:px-10">
+      <header className="mx-auto mb-4 flex w-full max-w-6xl items-center justify-between rounded-3xl border border-cyan-400/25 bg-slate-950/65 px-5 shadow-2xl shadow-cyan-950/20 backdrop-blur md:px-7 md:py-1">
+        <p className="text-2xl font-semibold uppercase tracking-[0.22em] text-cyan-100 sm:text-3xl md:text-3xl ">
+          AI Studio
+        </p>
+        <Image
+          src={studioStar}
+          alt="AI Studio star"
+          width={64}
+          height={64}
+          className="studio-star h-[58px] w-[58px] md:h-[64px] md:w-[64px]"
+          priority={false}
+        />
+      </header>
+
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-5 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-8">
-          <div className="mb-6 xl:mb-7">
+        <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-5">
+          <div className="mb-4 xl:mb-5">
             <div>
               <p className="text-xs  tracking-[0.24em] text-cyan-300">
                 <a
@@ -492,7 +545,7 @@ export function VoiceAssistantPanel() {
                 </a>{" "}
                 AI STUDIO
               </p>
-              <h1 className="mt-4 xl:mt-6 text-2xl font-semibold text-slate-100 md:text-3xl">
+              <h1 className="mt-2 xl:mt-4 text-xl font-semibold text-slate-100 md:text-2xl">
                 {assistantName == "Omi"
                   ? "Interview Prep Practice with"
                   : "English Speaking Practice with"}{" "}
@@ -504,8 +557,8 @@ export function VoiceAssistantPanel() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-cyan-500/25 bg-slate-950/70 p-4 md:p-6">
-            <div className="mb-4 flex items-center justify-between text-xs uppercase tracking-[0.14em] text-cyan-200/90">
+          <div className="relative overflow-hidden rounded-3xl border border-cyan-500/25 bg-slate-950/70 p-2 md:p-3">
+            <div className="mb-4 pt-1 flex items-center justify-between text-xs uppercase tracking-[0.14em] text-cyan-200/90">
               <span className="flex items-center gap-2">
                 <Radio className="h-4 w-4" />
                 Real-time voice practice
@@ -530,8 +583,8 @@ export function VoiceAssistantPanel() {
                 <VoiceWave level={combinedLevel} state={assistantState} />
               </div>
             </div>
-            <div className="mt-4 flex justify-center">
-              <div className="inline-flex items-center gap-2 rounded-md border border-[rgba(51,65,85,0.85)] bg-[rgba(2,6,23,0.72)] px-4 py-1 text-md font-medium tracking-[0.16em] ">
+            <div className="mt-3 flex justify-center">
+              <div className="inline-flex items-center gap-2 rounded-md border border-[rgba(51,65,85,0.85)] bg-[rgba(2,6,23,0.72)] px-4 py-1 text-sm font-medium tracking-[0.16em] ">
                 {statusLabels[assistantState]}
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75 animate-ping"></span>
@@ -541,26 +594,27 @@ export function VoiceAssistantPanel() {
             </div>
           </div>
 
-          <div className="mt-4 xl:mt-6 flex flex-col gap-3">
+          <div className="mt-4 xl:mt-5 flex flex-col gap-3">
             <div className="flex justify-center">
               <button
                 onClick={() => void toggleConversation()}
-                className="inline-flex items-center gap-2 rounded-full border border-cyan-300/50 bg-cyan-400/15 px-5 py-3 text-sm font-semibold  tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-300/20"
+                disabled={isTogglingConversation}
+                className="inline-flex min-w-[130px] justify-center items-center gap-2 rounded-full border border-cyan-300/50 bg-cyan-400/15 px-4 py-2 text-md font-bold  tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-300/20 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {started ? (
                   <Mic className="h-4 w-4" />
                 ) : (
                   <MicOff className="h-4 w-4" />
                 )}
-                {started ? "Stop " : "Start "}
+                {started ? "Stop" : "Start"}
               </button>
             </div>
 
-            <div className="flex mt-4 justify-center">
-              <div className="inline-flex overflow-hidden rounded-full border border-slate-700/80 bg-slate-900/70 p-1 text-xs  tracking-[0.12em]">
+            <div className="flex mt-3 justify-center">
+              <div className="inline-flex overflow-hidden rounded-full border border-slate-700/80 bg-slate-900/70 p-1 text-xs  tracking-[0.11em]">
                 <button
                   onClick={() => setSelectedSpeakerProfile("monowar")}
-                  className={`rounded-full px-4 py-2 transition ${
+                  className={`rounded-full px-3 py-2 transition ${
                     selectedSpeakerProfile === "monowar"
                       ? "bg-cyan-400/20 text-cyan-100"
                       : "text-slate-300 hover:text-slate-100"
@@ -570,7 +624,7 @@ export function VoiceAssistantPanel() {
                 </button>
                 <button
                   onClick={() => setSelectedSpeakerProfile("muntaha")}
-                  className={`rounded-full px-4 py-2 transition ${
+                  className={`rounded-full px-3 py-2 transition ${
                     selectedSpeakerProfile === "muntaha"
                       ? "bg-cyan-400/20 text-cyan-100"
                       : "text-slate-300 hover:text-slate-100"
@@ -582,10 +636,10 @@ export function VoiceAssistantPanel() {
             </div>
 
             <div className="flex justify-center">
-              <div className="inline-flex overflow-hidden rounded-full border border-slate-700/80 bg-slate-900/70 p-1 text-xs  tracking-[0.12em]">
+              <div className="inline-flex overflow-hidden rounded-full border border-slate-700/80 bg-slate-900/70 p-1 text-xs  tracking-[0.11em]">
                 <button
                   onClick={() => setSelectedInstructionMode("interview-prep")}
-                  className={`rounded-full px-4 py-2 transition ${
+                  className={`rounded-full px-3 py-2 transition ${
                     selectedInstructionMode === "interview-prep"
                       ? "bg-cyan-400/20 text-cyan-100"
                       : "text-slate-300 hover:text-slate-100"
@@ -595,7 +649,7 @@ export function VoiceAssistantPanel() {
                 </button>
                 <button
                   onClick={() => setSelectedInstructionMode("english-learning")}
-                  className={`rounded-full px-4 py-2 transition ${
+                  className={`rounded-full px-3 py-2 transition ${
                     selectedInstructionMode === "english-learning"
                       ? "bg-cyan-400/20 text-cyan-100"
                       : "text-slate-300 hover:text-slate-100"
@@ -610,7 +664,7 @@ export function VoiceAssistantPanel() {
               <button
                 onClick={() => void applyInstructionChange()}
                 disabled={!hasPendingInstructionChange}
-                className={`inline-flex items-center gap-2 rounded-full border px-5 py-3 text-sm font-semibold  tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
+                className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold  tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
                   hasPendingInstructionChange
                     ? "border-cyan-300/50 bg-cyan-400/15 text-cyan-100 hover:bg-cyan-300/20"
                     : "border-slate-500/70 bg-slate-800/85 text-slate-100"
@@ -629,8 +683,8 @@ export function VoiceAssistantPanel() {
           ) : null}
         </section>
 
-        <aside className="flex flex-col gap-4 lg:max-h-[calc(100vh-4rem)] lg:min-h-[620px]">
-          <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-5 backdrop-blur md:p-6">
+        <aside className="flex flex-col gap-3 lg:max-h-[calc(100vh-4rem)] lg:min-h-[620px]">
+          <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-3 backdrop-blur md:p-4">
             <div className="flex items-center justify-between">
               <p className="text-xs uppercase tracking-[0.14em] text-cyan-200">
                 {appliedInstructionMode === "interview-prep"
@@ -651,14 +705,14 @@ export function VoiceAssistantPanel() {
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
               <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
                 <p className="text-slate-400">Phase</p>
-                <p className="mt-1 font-semibold text-slate-100">
+                <p className="mt-1 font-semibold text-fuchsia-600">
                   {interviewPhaseLabel}
                 </p>
               </div>
               <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
                 <p className="text-slate-400">Session time remaining</p>
-                <p className="mt-1 font-semibold text-slate-100">
-                  {formatRemainingDuration(remainingSeconds)}
+                <p className={remainingTimeTextClass}>
+                  {formatRemainingDuration(remainingSeconds, started)}
                 </p>
               </div>
               <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
@@ -679,7 +733,7 @@ export function VoiceAssistantPanel() {
               <p className="text-[11px] uppercase tracking-[0.12em] text-slate-300">
                 Developer
               </p>
-              <div className="mt-3 flex items-center gap-5 rounded-xl border border-cyan-400/20 bg-slate-950/70 p-4 md:p-5">
+              <div className="mt-2 flex items-center justify-center pl-10 gap-6 rounded-xl border border-cyan-400/20 bg-slate-950/70 p-1 md:p-2">
                 <Image
                   src={tmProfile}
                   alt="Tarek Monowar"
@@ -739,16 +793,13 @@ export function VoiceAssistantPanel() {
             </div>
           </section>
 
-          <section className="flex min-h-[380px] flex-1 flex-col rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-5 backdrop-blur md:p-6 lg:min-h-0">
-            <h2 className="text-lg font-semibold text-slate-100">
-              Conversation Feed
-            </h2>
-            <p className="mt-2 text-sm text-slate-300">
+          <section className="flex min-h-[380px] flex-1 flex-col rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-2 backdrop-blur md:p-4 lg:min-h-0">
+            <p className=" text-sm text-slate-300">
               Your speech and {assistantName}&apos;s response transcripts appear
               here in real-time.
             </p>
 
-            <div className="mt-5 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
+            <div className="mt-1 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {transcripts.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/55 p-4 text-sm text-slate-400">
                   Start a conversation to see the live transcript.
@@ -757,16 +808,28 @@ export function VoiceAssistantPanel() {
                 transcripts.map((item) => (
                   <div
                     key={item.id}
-                    className={`rounded-2xl p-3 text-sm leading-relaxed ${
-                      item.role === "user"
-                        ? "border border-cyan-500/30 bg-cyan-500/10 text-cyan-100"
-                        : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100"
+                    className={`flex w-full mb-4 ${
+                      item.role === "user" ? "justify-end" : "justify-start"
                     }`}
                   >
-                    <p className="mb-1 text-[11px] uppercase tracking-[0.14em] opacity-75">
-                      {item.role === "user" ? "Monowar" : assistantName}
-                    </p>
-                    <p>{item.text}</p>
+                    <div
+                      className={`max-w-[80%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm ${
+                        item.role === "user"
+                          ? "border border-cyan-500/30 bg-cyan-500/10 text-cyan-100 rounded-tr-none" // ইউজার ডান পাশে, কোণা কাটা
+                          : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100 rounded-tl-none" // ওমি বাম পাশে, কোণা কাটা
+                      }`}
+                    >
+                      {/* নাম দেখানোর জন্য (ঐচ্ছিক, চ্যাটজিপিটি সাধারণত নাম দেখায় না, শুধু বাবল দেখায়) */}
+                      <p
+                        className={`mb-1 text-[10px] font-bold uppercase tracking-[0.1em] opacity-60 ${
+                          item.role === "user" ? "text-right" : "text-left"
+                        }`}
+                      >
+                        {item.role === "user" ? "Monowar" : assistantName}
+                      </p>
+
+                      <p className="whitespace-pre-wrap">{item.text}</p>
+                    </div>
                   </div>
                 ))
               )}

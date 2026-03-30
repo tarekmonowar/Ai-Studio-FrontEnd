@@ -128,10 +128,10 @@ export function VoiceWave({ level, state }: VoiceWaveProps) {
 
   return (
     <div className="relative w-full">
-      <div className="absolute inset-x-8 top-1/2 h-24 -translate-y-1/2 rounded-full bg-cyan-400/20 blur-2xl" />
+      <div className="absolute inset-x-8 top-1/2 h-20 -translate-y-1/2 rounded-full bg-cyan-400/20 blur-2xl" />
       <canvas
         ref={canvasRef}
-        className="relative h-[180px] w-full rounded-2xl border border-indigo-900 bg-[#090e38]"
+        className="relative h-[150px] w-full rounded-2xl border border-indigo-900 bg-[#090e38]"
       />
     </div>
   );

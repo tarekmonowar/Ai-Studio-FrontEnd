@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
+import tmImage from "@/public/tm.png";
 import "./globals.css";
 
 const headingFont = Sora({
@@ -13,9 +14,34 @@ const bodyFont = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Seaking AI Voice Interview Coach",
+  title: "TM Ai-studio",
   description:
     "Real-time AI voice assistant for interview and spoken English practice",
+  icons: {
+    icon: tmImage.src,
+    shortcut: tmImage.src,
+    apple: tmImage.src,
+  },
+  openGraph: {
+    title: "TM Ai-studio",
+    description:
+      "Real-time AI voice assistant for interview and spoken English practice",
+    images: [
+      {
+        url: tmImage.src,
+        width: tmImage.width,
+        height: tmImage.height,
+        alt: "TM Ai-studio",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TM Ai-studio",
+    description:
+      "Real-time AI voice assistant for interview and spoken English practice",
+    images: [tmImage.src],
+  },
 };
 
 export default function RootLayout({
