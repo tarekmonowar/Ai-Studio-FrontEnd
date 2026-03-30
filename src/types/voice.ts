@@ -21,7 +21,11 @@ export interface TranscriptItem {
 
 export type ServerEvent =
   | { type: "session.connecting" }
-  | { type: "session.ready"; sessionId: string }
+  | {
+      type: "session.ready";
+      sessionId: string;
+      rateLimitRemainingSeconds?: number;
+    }
   | { type: "session.closed" }
   | { type: "assistant.thinking" }
   | { type: "assistant.speaking" }

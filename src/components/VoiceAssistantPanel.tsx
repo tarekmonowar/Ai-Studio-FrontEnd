@@ -100,6 +100,14 @@ function formatDuration(totalSeconds: number): string {
   return `${minutes}:${seconds}`;
 }
 
+function formatRemainingDuration(totalSeconds: number | null): string {
+  if (totalSeconds === null) {
+    return "Unlimited";
+  }
+
+  return formatDuration(Math.max(0, totalSeconds));
+}
+
 function getStatusLabels(
   assistantName: string,
 ): Record<AssistantState, string> {
@@ -141,15 +149,13 @@ export function VoiceAssistantPanel() {
     useState<SpeakerProfile>(DEFAULT_SPEAKER_PROFILE);
   const [appliedSpeakerProfile, setAppliedSpeakerProfile] =
     useState<SpeakerProfile>(DEFAULT_SPEAKER_PROFILE);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [remainingSeconds, setRemainingSeconds] = useState<number | null>(null);
 
   const playerRef = useRef(new AudioPlayer());
   const assistantStateRef = useRef<AssistantState>("idle");
   const responseActiveRef = useRef(false);
   const assistantDoneAtRef = useRef(0);
   const transcriptEndRef = useRef<HTMLDivElement | null>(null);
-  const sessionStartedAtRef = useRef<number | null>(null);
-  const accumulatedElapsedSecondsRef = useRef(0);
 
   const assistantName = useMemo(
     () => (appliedInstructionMode === "english-learning" ? "Ava" : "Omi"),
@@ -164,6 +170,11 @@ export function VoiceAssistantPanel() {
     switch (event.type) {
       case "session.ready":
         setSessionReady(true);
+        setRemainingSeconds(
+          typeof event.rateLimitRemainingSeconds === "number"
+            ? event.rateLimitRemainingSeconds
+            : null,
+        );
         if (
           assistantStateRef.current === "idle" ||
           assistantStateRef.current === "connecting"
@@ -330,29 +341,24 @@ export function VoiceAssistantPanel() {
   }, [disconnect]);
 
   useEffect(() => {
-    if (!started) {
+    if (!started || !sessionReady || remainingSeconds === null) {
       return;
     }
 
-    if (sessionStartedAtRef.current === null) {
-      sessionStartedAtRef.current = Date.now();
-    }
-
     const timer = window.setInterval(() => {
-      if (sessionStartedAtRef.current === null) {
-        return;
-      }
+      setRemainingSeconds((current) => {
+        if (current === null) {
+          return null;
+        }
 
-      const elapsed = Math.floor(
-        (Date.now() - sessionStartedAtRef.current) / 1000,
-      );
-      setElapsedSeconds(accumulatedElapsedSecondsRef.current + elapsed);
+        return Math.max(0, current - 1);
+      });
     }, 1000);
 
     return () => {
       window.clearInterval(timer);
     };
-  }, [started]);
+  }, [remainingSeconds, sessionReady, started]);
 
   const startConversation = useCallback(
     async (
@@ -381,15 +387,6 @@ export function VoiceAssistantPanel() {
   );
 
   const stopConversation = useCallback(async () => {
-    if (sessionStartedAtRef.current !== null) {
-      const elapsed = Math.floor(
-        (Date.now() - sessionStartedAtRef.current) / 1000,
-      );
-      accumulatedElapsedSecondsRef.current += elapsed;
-      sessionStartedAtRef.current = null;
-      setElapsedSeconds(accumulatedElapsedSecondsRef.current);
-    }
-
     responseActiveRef.current = false;
     disconnect();
     await playerRef.current.stop();
@@ -398,6 +395,7 @@ export function VoiceAssistantPanel() {
     setSessionReady(false);
     setAiLevel(0);
     setClientError(null);
+    setRemainingSeconds(null);
   }, [disconnect]);
 
   const toggleConversation = useCallback(async () => {
@@ -427,9 +425,7 @@ export function VoiceAssistantPanel() {
     setAppliedInstructionMode(selectedInstructionMode);
     setAppliedSpeakerProfile(selectedSpeakerProfile);
     setTranscripts([]);
-    sessionStartedAtRef.current = null;
-    accumulatedElapsedSecondsRef.current = 0;
-    setElapsedSeconds(0);
+    setRemainingSeconds(null);
     setClientError(null);
     setAiLevel(0);
 
@@ -660,9 +656,9 @@ export function VoiceAssistantPanel() {
                 </p>
               </div>
               <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
-                <p className="text-slate-400">Session time</p>
+                <p className="text-slate-400">Session time remaining</p>
                 <p className="mt-1 font-semibold text-slate-100">
-                  {formatDuration(elapsedSeconds)}
+                  {formatRemainingDuration(remainingSeconds)}
                 </p>
               </div>
               <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
