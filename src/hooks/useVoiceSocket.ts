@@ -58,9 +58,9 @@ function normalizeBackendError(message: string): string {
 }
 
 function mapTransportError(wsUrl: string): string {
+  console.log(wsUrl);
   return withHint(
-    "Could not connect to the voice backend server.",
-    `Make sure backend is running and NEXT_PUBLIC_BACKEND_HTTP_URL or NEXT_PUBLIC_BACKEND_WS_URL points to ${wsUrl}.`,
+    "This Ai available for on Bangladesh Students only. Please contact support.",
   );
 }
 
