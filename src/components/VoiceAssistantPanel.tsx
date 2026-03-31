@@ -588,7 +588,7 @@ export function VoiceAssistantPanel() {
                       : "text-slate-300 hover:text-slate-100"
                   }`}
                 >
-                  Monowar
+                  Male
                 </button>
                 <button
                   onClick={() => setSelectedSpeakerProfile("muntaha")}
@@ -598,7 +598,7 @@ export function VoiceAssistantPanel() {
                       : "text-slate-300 hover:text-slate-100"
                   }`}
                 >
-                  Muntaha
+                  Female
                 </button>
               </div>
             </div>
