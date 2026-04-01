@@ -21,7 +21,6 @@ import type {
   SpeakerProfile,
   TranscriptItem,
 } from "@/types/voice";
-import studioStar from "@/public/star.svg";
 import tmProfile from "@/public/tm.png";
 import { VoiceWave } from "./VoiceWave";
 
@@ -484,21 +483,7 @@ export function VoiceAssistantPanel() {
     : "mt-1 font-semibold text-cyan-100";
 
   return (
-    <main className="min-h-screen bg-app px-4 py-3 text-slate-100 sm:px-8 lg:px-10">
-      <header className="mx-auto mb-4 flex w-full max-w-6xl items-center justify-between rounded-3xl border border-cyan-400/25 bg-slate-950/65 px-5 shadow-2xl shadow-cyan-950/20 backdrop-blur md:px-7 md:py-1">
-        <p className="text-2xl font-semibold uppercase tracking-[0.22em] text-cyan-100 sm:text-3xl md:text-3xl ">
-          AI Studio
-        </p>
-        <Image
-          src={studioStar}
-          alt="AI Studio star"
-          width={64}
-          height={64}
-          className="studio-star h-[58px] w-[58px] md:h-[64px] md:w-[64px]"
-          priority={false}
-        />
-      </header>
-
+    <main className="bg-app px-4 py-3 text-slate-100 sm:px-8 lg:px-10">
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-5">
           <div className="mb-4 xl:mb-5">

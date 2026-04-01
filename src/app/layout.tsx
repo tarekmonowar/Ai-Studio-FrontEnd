@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
 import tmImage from "@/public/tm.png";
+import { AppTopHeader } from "@/components/AppTopHeader";
+import { BottomNavbar } from "@/components/BottomNavbar";
 import "./globals.css";
 
 const headingFont = Sora({
@@ -54,7 +56,11 @@ export default function RootLayout({
       <body
         className={`${headingFont.variable} ${bodyFont.variable} antialiased`}
       >
-        {children}
+        <div className="relative min-h-screen">
+          <AppTopHeader />
+          {children}
+          <BottomNavbar />
+        </div>
       </body>
     </html>
   );
