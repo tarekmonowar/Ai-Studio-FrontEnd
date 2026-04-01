@@ -6,7 +6,7 @@
 - Frontend: [https://github.com/tarekmonowar/Ai-Studio-FrontEnd](https://github.com/tarekmonowar/Ai-Studio-FrontEnd)
 - Backend: [https://github.com/tarekmonowar/Ai-Studio-BackEnd](https://github.com/tarekmonowar/Ai-Studio-BackEnd)
 
-![AI Studio App](/public/aistuio.png)
+![AI Studio App](src/public/aistuio.png)
 
 ## 📖 What This Project Solves
 AI Studio is an interactive, real-time voice assistant explicitly designed for technical mock interviews. It allows users to practice real-world interview scenarios seamlessly. By combining cutting-edge Voice Activity Detection (VAD) and WebSocket streaming, the frontend provides an extremely responsive and natural conversational interface for candidates to practice and improve their skills.
