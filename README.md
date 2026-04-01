@@ -2,7 +2,7 @@
 
 **Live Demo**:
 [https://ai-studio.tarekmonowar.dev/](https://ai-studio.tarekmonowar.dev/) |
-[https://ai-studio-front-end.vercel.app/](https://ai-studio-front-end.vercel.app/)
+[https://ai-studio-tm.vercel.app/](https://ai-studio-tm.vercel.app/)
 
 **GitHub Repositories**:
 
