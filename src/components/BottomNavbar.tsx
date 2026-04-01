@@ -41,13 +41,29 @@ export function BottomNavbar() {
                 <Link
                   href={item.href}
                   aria-current={isActive ? "page" : undefined}
-                  className={`flex h-12 items-center justify-center rounded-xl border-b-2 px-2 text-center text-[11px] font-semibold tracking-[0.06em] transition sm:text-sm ${
+                  className={`group relative flex h-12 items-center justify-center overflow-hidden rounded-xl border px-2 text-center text-[11px] font-semibold tracking-[0.06em] transition-all duration-300 sm:text-sm ${
                     isActive
-                      ? "border-cyan-300 bg-cyan-400/15 text-cyan-100"
+                      ? "nav-link-active-fx border-cyan-300/80 bg-cyan-400/10 text-cyan-50"
                       : "border-transparent text-slate-300 hover:bg-slate-900/70 hover:text-slate-100"
                   }`}
                 >
-                  {item.label}
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute inset-0 rounded-xl ${
+                      isActive ? "nav-link-active-surface" : ""
+                    }`}
+                  />
+
+                  <span
+                    aria-hidden="true"
+                    className={`pointer-events-none absolute -left-1/2 top-0 h-full w-1/2 -skew-x-12 ${
+                      isActive ? "nav-link-active-shimmer" : "hidden"
+                    }`}
+                  />
+
+                  <span className="relative z-10 transition-transform duration-300 group-hover:scale-[1.02]">
+                    {item.label}
+                  </span>
                 </Link>
               </li>
             );

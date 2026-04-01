@@ -59,9 +59,7 @@ function normalizeBackendError(message: string): string {
 
 function mapTransportError(wsUrl: string): string {
   console.log(wsUrl);
-  return withHint(
-    "This Ai available for on Bangladesh Students only. Please contact support.",
-  );
+  return withHint("Failed to connect to voice backend.");
 }
 
 function mapCloseError(code: number, reason: string, wsUrl: string): string {
