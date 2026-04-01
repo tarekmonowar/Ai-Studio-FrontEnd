@@ -1,38 +1,54 @@
-# Frontend App
+# 🎙️ AI Studio - Frontend
 
-Next.js 14 App Router frontend for Seaking AI voice assistant.
+**Live Demo**: [https://ai-studio.tarekmonowar.dev/](https://ai-studio.tarekmonowar.dev/) | [https://ai-studio-front-end.vercel.app/](https://ai-studio-front-end.vercel.app/)
 
-This app contains only client-facing logic:
+**GitHub Repositories**: 
+- Frontend: [https://github.com/tarekmonowar/Ai-Studio-FrontEnd](https://github.com/tarekmonowar/Ai-Studio-FrontEnd)
+- Backend: [https://github.com/tarekmonowar/Ai-Studio-BackEnd](https://github.com/tarekmonowar/Ai-Studio-BackEnd)
 
-- UI and animations
-- microphone capture and VAD
-- websocket client streaming
-- transcript display
+![AI Studio App](/public/aistuio.png)
 
-No Azure SDK usage and no private backend keys are used here.
+## 📖 What This Project Solves
+AI Studio is an interactive, real-time voice assistant explicitly designed for technical mock interviews. It allows users to practice real-world interview scenarios seamlessly. By combining cutting-edge Voice Activity Detection (VAD) and WebSocket streaming, the frontend provides an extremely responsive and natural conversational interface for candidates to practice and improve their skills.
 
-## Source layout
+## ✨ Features
+- **Real-time Voice Interaction**: Seamless microphone capture, WebSockets streaming, and audio playback.
+- **Voice Activity Detection (VAD)**: Smartly detects when the user starts/stops speaking for fluid turn-taking.
+- **Interactive UI**: Clean, modern interface built with Next.js 14 and Tailwind CSS.
+- **Real-time Transcripts**: Displays the conversation transcript dynamically as you speak.
 
-- src/app: layout, page, global styles
-- src/components: voice UI components
-- src/config: runtime public environment helpers
-- src/hooks: microphone and socket hooks
-- src/lib: pcm and audio playback helpers
-- src/types: frontend voice event types
+## 🛠️ Tech Stack
+- **Framework**: Next.js 14 (App Router)
+- **Styling**: Tailwind CSS
+- **Icons**: Lucide React
+- **Voice / Audio**: Custom Hooks (`useMicrophoneVad`, `useVoiceSocket`), PCM Processing
 
-## Environment
+## 🚀 Getting Started
 
-Copy .env.example to .env.local.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/tarekmonowar/Ai-Studio-FrontEnd.git
+   cd frontend
+   ```
 
-Required:
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
 
-- NEXT_PUBLIC_BACKEND_HTTP_URL=http://localhost:8787
+3. **Set up Environment Variables**:
+   Create a `.env.local` file with your backend connection URLs:
+   ```env
+   NEXT_PUBLIC_BACKEND_HTTP_URL=http://localhost:8787
+   NEXT_PUBLIC_BACKEND_WS_URL=ws://localhost:8787/ws
+   ```
 
-Optional:
+4. **Run the Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-- NEXT_PUBLIC_BACKEND_WS_URL=ws://localhost:8787/ws
+---
 
-## Run
-
-- npm run dev
-- open http://localhost:3000
+*For the backend logic, API keys, and voice AI integrations, check out the [Backend Repository](https://github.com/tarekmonowar/Ai-Studio-BackEnd).*
