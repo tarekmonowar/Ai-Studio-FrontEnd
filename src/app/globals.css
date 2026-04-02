@@ -320,3 +320,143 @@ h4 {
     transform: none;
   }
 }
+
+/* ─── AI Activity Monitor Animations ─── */
+
+.agent-monitor-pulse {
+  animation: agent-pulse 2s ease-in-out infinite;
+}
+
+@keyframes agent-pulse {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes agent-log-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agent-log-entry {
+  transition: all 0.25s ease;
+}
+
+.agent-log-entry:hover {
+  filter: brightness(1.08);
+}
+
+/* Thinking dots bounce animation */
+.agent-thinking-dot {
+  animation: agent-dot-bounce 1.4s ease-in-out infinite;
+}
+
+.agent-thinking-dot-1 {
+  animation-delay: 0s;
+}
+
+.agent-thinking-dot-2 {
+  animation-delay: 0.2s;
+}
+
+.agent-thinking-dot-3 {
+  animation-delay: 0.4s;
+}
+
+@keyframes agent-dot-bounce {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
+  }
+}
+
+/* Idle icon subtle float */
+.agent-monitor-idle-icon {
+  animation: agent-idle-float 3s ease-in-out infinite;
+}
+
+@keyframes agent-idle-float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* Smooth scroll area */
+.agent-monitor-scroll {
+  scroll-behavior: smooth;
+}
+
+.agent-monitor-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.agent-monitor-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.agent-monitor-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 4px;
+}
+
+.agent-monitor-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.4);
+}
+
+/* Cursor blink for demo typing */
+@keyframes agent-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Demo cursor animations */
+@keyframes agent-cursor-arrive {
+  0% {
+    opacity: 0;
+    transform: translate(20px, -20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+@keyframes agent-cursor-click {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.85);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .agent-monitor-pulse,
+  .agent-thinking-dot,
+  .agent-monitor-idle-icon,
+  .agent-log-entry {
+    animation: none !important;
+  }
+}
