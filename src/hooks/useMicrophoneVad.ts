@@ -2,22 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { downsampleBuffer, rmsLevel, toPcm16 } from "@/lib/pcm";
-
-interface UseMicrophoneVadOptions {
-  isActive: boolean;
-  vadThreshold?: number;
-  silenceMs?: number;
-  onPcmChunk: (chunk: ArrayBuffer) => void;
-  onSpeechStart?: () => void;
-  onSpeechEnd?: () => void;
-}
-
-interface UseMicrophoneVadResult {
-  level: number;
-  speaking: boolean;
-  error: string | null;
-  isSecureContext: boolean;
-}
+import type {
+  UseMicrophoneVadOptions,
+  UseMicrophoneVadResult,
+} from "@/types/useMicrophoneVad.type";
 
 const TARGET_SAMPLE_RATE = 24000;
 
@@ -43,11 +31,21 @@ export function useMicrophoneVad({
   const vadThresholdRef = useRef(vadThreshold);
   const silenceMsRef = useRef(silenceMs);
 
-  useEffect(() => { onPcmChunkRef.current = onPcmChunk; }, [onPcmChunk]);
-  useEffect(() => { onSpeechStartRef.current = onSpeechStart; }, [onSpeechStart]);
-  useEffect(() => { onSpeechEndRef.current = onSpeechEnd; }, [onSpeechEnd]);
-  useEffect(() => { vadThresholdRef.current = vadThreshold; }, [vadThreshold]);
-  useEffect(() => { silenceMsRef.current = silenceMs; }, [silenceMs]);
+  useEffect(() => {
+    onPcmChunkRef.current = onPcmChunk;
+  }, [onPcmChunk]);
+  useEffect(() => {
+    onSpeechStartRef.current = onSpeechStart;
+  }, [onSpeechStart]);
+  useEffect(() => {
+    onSpeechEndRef.current = onSpeechEnd;
+  }, [onSpeechEnd]);
+  useEffect(() => {
+    vadThresholdRef.current = vadThreshold;
+  }, [vadThreshold]);
+  useEffect(() => {
+    silenceMsRef.current = silenceMs;
+  }, [silenceMs]);
 
   const streamRef = useRef<MediaStream | null>(null);
   const contextRef = useRef<AudioContext | null>(null);

@@ -7,31 +7,11 @@ import type {
   ServerEvent,
   SpeakerProfile,
 } from "@/types/voice";
-
-type ConnectionStatus =
-  | "idle"
-  | "connecting"
-  | "connected"
-  | "disconnected"
-  | "error";
-
-interface UseVoiceSocketOptions {
-  onAudioChunk: (chunk: ArrayBuffer) => void;
-  onServerEvent: (event: ServerEvent) => void;
-}
-
-interface UseVoiceSocketResult {
-  status: ConnectionStatus;
-  error: string | null;
-  connect: (
-    instructionMode?: InstructionMode,
-    speakerProfile?: SpeakerProfile,
-  ) => Promise<void>;
-  disconnect: () => void;
-  sendAudioChunk: (chunk: ArrayBuffer) => void;
-  cancelAssistant: () => void;
-  requestResponse: () => void;
-}
+import type {
+  ConnectionStatus,
+  UseVoiceSocketOptions,
+  UseVoiceSocketResult,
+} from "@/types/useVoiceSocket.type";
 
 function withHint(message: string, hint?: string): string {
   if (!hint) return message;
