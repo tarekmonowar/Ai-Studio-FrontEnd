@@ -7,6 +7,31 @@ function toWsUrl(httpBaseUrl: string): string {
   return parsed.toString();
 }
 
+function normalizeHttpBase(httpBaseUrl: string): string {
+  const parsed = new URL(httpBaseUrl);
+  parsed.pathname = "";
+  parsed.search = "";
+  parsed.hash = "";
+  return parsed.toString().replace(/\/$/, "");
+}
+
+export function resolveBackendHttpUrl(): string {
+  const httpBase = process.env.NEXT_PUBLIC_BACKEND_HTTP_URL;
+  if (httpBase && httpBase.length > 0) {
+    try {
+      return normalizeHttpBase(httpBase);
+    } catch {
+      // Fall through to same-host development default.
+    }
+  }
+
+  if (typeof window === "undefined") {
+    return "http://localhost:8787";
+  }
+
+  return `${window.location.protocol}//${window.location.hostname}:8787`;
+}
+
 export function resolveVoiceSocketUrl(): string {
   if (typeof window === "undefined") {
     return "";
