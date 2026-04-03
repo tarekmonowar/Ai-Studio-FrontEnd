@@ -77,8 +77,6 @@ export function HowToUseDemo({
     };
   }, [phase, typedText, currentIdx]);
 
-  const currentCmd = DEMO_COMMANDS[currentIdx];
-
   return (
     <div
       className="flex flex-col overflow-hidden rounded-xl border"
@@ -104,34 +102,22 @@ export function HowToUseDemo({
           }}
         />
         <p
-          className="text-[10px] font-bold uppercase tracking-[0.18em]"
+          className="text-[10px] xl:text-[16px] font-bold uppercase tracking-[0.18em]"
           style={{ color: subtleTextColor, opacity: 0.8 }}
         >
           How to Use
         </p>
-        <span
-          className="ml-auto rounded-full px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider"
-          style={{
-            background:
-              "color-mix(in srgb, var(--agent-primary) 12%, transparent)",
-            color: "var(--agent-primary)",
-            border:
-              "1px solid color-mix(in srgb, var(--agent-primary) 25%, transparent)",
-          }}
-        >
-          {currentCmd?.label}
-        </span>
       </div>
 
       <div
-        className="flex flex-1 flex-col justify-between overflow-hidden px-3 py-3"
+        className="flex flex-1 flex-col justify-between overflow-hidden px-2 py-3 xl:pb-4"
         style={{ minHeight: 0 }}
       >
         <div className="flex flex-wrap gap-1" style={{ flexShrink: 0 }}>
           {DEMO_COMMANDS.map((cmd, i) => (
             <span
               key={cmd.text}
-              className="rounded-full px-2 py-0.5 text-[9px] font-medium transition-all duration-300"
+              className="rounded-full px-2 py-0.5 text-[9px] xl:text-[12px] font-medium transition-all duration-300"
               style={{
                 background:
                   i === currentIdx
@@ -155,17 +141,15 @@ export function HowToUseDemo({
         </div>
 
         <div
-          className="flex flex-1 flex-col justify-end overflow-hidden"
+          className="flex flex-1 flex-col justify-end mb-2 overflow-hidden"
           style={{ minHeight: 0, gap: 4 }}
         >
           {response && (
             <div
-              className="self-start rounded-lg px-3 py-2 text-[12px]"
+              className="self-start rounded-lg px-3 py-2 text-[12px] xl:text-[15px] font-medium bg-green-800/40"
               style={{
                 animation: "agent-log-fade-in 0.3s ease-out",
-                background: isLightTheme
-                  ? "rgba(241,245,249,0.9)"
-                  : "rgba(15,23,42,0.6)",
+
                 border: `1px solid ${
                   isLightTheme
                     ? "rgba(148,163,184,0.25)"
@@ -176,7 +160,7 @@ export function HowToUseDemo({
               }}
             >
               <span
-                className="text-[9px] font-bold uppercase tracking-wider"
+                className="text-[9px] font-bold  tracking-wider xl:text-[11px]"
                 style={{ color: subtleTextColor, opacity: 0.6 }}
               >
                 Agent
@@ -223,7 +207,7 @@ export function HowToUseDemo({
           style={{ flexShrink: 0 }}
         >
           <div
-            className="rounded-lg border px-3 py-2 text-[12px]"
+            className="rounded-lg border px-3 py-2 text-[12px] xl:text-[15px] font-medium"
             style={{
               borderColor: `color-mix(in srgb, var(--agent-primary) 15%, ${borderSoft})`,
               background: isLightTheme
@@ -248,10 +232,10 @@ export function HowToUseDemo({
               />
             )}
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 mt-1">
             <button
               type="button"
-              className="rounded-md px-3 py-1.5 text-[11px] font-semibold transition-all duration-300"
+              className="rounded-md px-3 py-1.5 text-[11px] xl:text-[15px] font-semibold transition-all duration-300"
               style={{
                 backgroundColor:
                   phase === "sending"
@@ -259,7 +243,8 @@ export function HowToUseDemo({
                     : "var(--agent-primary)",
                 color: "#020617",
                 transform: phase === "sending" ? "scale(0.95)" : "scale(1)",
-                opacity: typedText.length === 0 && phase === "typing" ? 0.4 : 1,
+                opacity:
+                  typedText.length === 0 && phase === "typing" ? 0.2 : 0.5,
                 cursor: "default",
                 pointerEvents: "none",
               }}
@@ -267,10 +252,10 @@ export function HowToUseDemo({
               Send
             </button>
             <span
-              className="text-[9px]"
+              className="text-[9px] xl:text-[11px] ml-2"
               style={{ color: subtleTextColor, opacity: 0.4 }}
             >
-              Demo — commands cycle automatically
+              (Demo)
             </span>
           </div>
 

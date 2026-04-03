@@ -35,8 +35,8 @@ export function AIAgentsExperience() {
     const style: CSSProperties = {
       "--agent-primary": styleState.primaryColor,
       "--agent-font-scale": styleState.fontScale.toString(),
-      background: styleState.backgroundColor || defaultBg,
-      color: isLightTheme ? "#0f172a" : "#e2e8f0",
+      "background": styleState.backgroundColor || defaultBg,
+      "color": isLightTheme ? "#0f172a" : "#e2e8f0",
     } as CSSProperties;
 
     return style;
@@ -55,7 +55,7 @@ export function AIAgentsExperience() {
     : "rgba(3,9,25,0.6)";
   const cardBackground = isLightTheme
     ? "rgba(248,250,252,0.95)"
-    : "rgba(15,23,42,0.5)";
+    : "linear-gradient(145deg, rgba(2,6,23,0.84), rgba(12,24,49,0.78))";
   const subtleTextColor = isLightTheme ? "#334155" : "#cbd5e1";
   const borderSoft = isLightTheme
     ? "rgba(71,85,105,0.3)"
@@ -96,10 +96,9 @@ export function AIAgentsExperience() {
         />
 
         <aside
-          className="flex flex-col gap-2 overflow-hidden rounded-2xl border p-3"
+          className="flex flex-col gap-3 overflow-hidden rounded-xl"
           style={{
             borderColor: borderSoft,
-            background: panelBackground,
           }}
         >
           <HowToUseDemo

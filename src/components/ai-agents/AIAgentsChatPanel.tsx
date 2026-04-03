@@ -44,9 +44,8 @@ export function AIAgentsChatPanel({
 }: AIAgentsChatPanelProps) {
   return (
     <section
-      className="flex flex-col overflow-hidden rounded-2xl border p-3 transition-all duration-500 md:p-4"
+      className="flex flex-col overflow-hidden rounded-2xl border border-gray-900 p-2 transition-all duration-500 md:p-3"
       style={{
-        borderColor: `color-mix(in srgb, var(--agent-primary) 30%, ${borderSoft})`,
         background: styleState.chatBackgroundColor
           ? styleState.chatBackgroundColor
           : panelBackground,
@@ -61,13 +60,13 @@ export function AIAgentsChatPanel({
         }}
       >
         <h1
-          className="text-lg font-semibold leading-tight md:text-xl"
+          className="text-lg font-semibold leading-tight md:text-xl xl:text-2xl"
           style={{ fontSize: "calc(1.15rem * var(--agent-font-scale))" }}
         >
           AI Agents Automation
         </h1>
         <p
-          className="mt-0.5 text-[11px] leading-relaxed"
+          className="mt-0.5 text-[11px] xl:text-[15px] leading-relaxed"
           style={{ color: subtleTextColor, opacity: 0.6 }}
         >
           Navigate pages, send emails, and customize this UI — all via AI
@@ -87,7 +86,7 @@ export function AIAgentsChatPanel({
         {messages.length === 0 && !isThinking ? (
           <div className="flex h-full flex-col items-center justify-center gap-2 py-8 text-center">
             <p
-              className="text-[11px] font-medium"
+              className="text-[11px] font-medium xl:text-[15px]"
               style={{ color: subtleTextColor, opacity: 0.5 }}
             >
               Try: &ldquo;navigate to analytical ai&rdquo; or &ldquo;set theme
@@ -221,7 +220,7 @@ export function AIAgentsChatPanel({
       </div>
 
       <div
-        className="mt-2 space-y-1.5 border-t pt-2"
+        className="mt-2 space-y-1.5 pt-2"
         style={{
           borderColor: `color-mix(in srgb, var(--agent-primary) 12%, ${borderSoft})`,
         }}
@@ -237,7 +236,7 @@ export function AIAgentsChatPanel({
           }}
           placeholder="Ask the AI agent anything…"
           rows={2}
-          className="w-full resize-none rounded-lg border px-3 py-2 text-[13px] outline-none transition placeholder:text-[12px]"
+          className="w-full resize-none rounded-lg border px-3 py-2 text-[13px] outline-none transition placeholder:text-[12px] xl:placeholder:text-[14px] "
           style={{
             fontSize: "calc(0.82rem * var(--agent-font-scale))",
             borderColor: `color-mix(in srgb, var(--agent-primary) 15%, ${borderSoft})`,
@@ -255,7 +254,7 @@ export function AIAgentsChatPanel({
               void onSendPrompt(inputValue);
             }}
             disabled={isThinking || inputValue.trim().length === 0}
-            className="rounded-lg px-3.5 py-1.5 text-[12px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
+            className="rounded-lg px-3.5 py-1.5 text-[12px] xl:text-[14px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-40"
             style={{
               backgroundColor: "var(--agent-primary)",
               color: "#020617",
@@ -268,7 +267,7 @@ export function AIAgentsChatPanel({
             type="button"
             onClick={onToggleMic}
             disabled={!isSpeechSupported}
-            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] xl:text-[14px] font-medium transition disabled:cursor-not-allowed disabled:opacity-40"
             style={{
               borderColor: `color-mix(in srgb, var(--agent-primary) 25%, ${borderSoft})`,
               color: isLightTheme ? "#334155" : "#cbd5e1",
@@ -281,7 +280,7 @@ export function AIAgentsChatPanel({
           <button
             type="button"
             onClick={onResetStyles}
-            className="rounded-lg border px-2.5 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] transition"
+            className="rounded-lg border px-2.5 py-1.5 text-[10px] xl:text-[12px] font-semibold uppercase tracking-[0.12em] transition"
             style={{
               borderColor: borderSoft,
               color: subtleTextColor,
@@ -297,7 +296,7 @@ export function AIAgentsChatPanel({
         ) : null}
         {micError ? (
           <p
-            className="text-[11px]"
+            className="text-[11px] xl:text-[14px]"
             style={{ color: isLightTheme ? "#b45309" : "#fcd34d" }}
           >
             {micError}

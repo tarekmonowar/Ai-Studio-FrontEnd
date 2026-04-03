@@ -328,7 +328,8 @@ h4 {
 }
 
 @keyframes agent-pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.6;
     transform: scale(0.9);
   }
@@ -375,7 +376,9 @@ h4 {
 }
 
 @keyframes agent-dot-bounce {
-  0%, 60%, 100% {
+  0%,
+  60%,
+  100% {
     opacity: 0.3;
     transform: translateY(0);
   }
@@ -391,7 +394,8 @@ h4 {
 }
 
 @keyframes agent-idle-float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {
@@ -423,8 +427,13 @@ h4 {
 
 /* Cursor blink for demo typing */
 @keyframes agent-cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 /* Demo cursor animations */
