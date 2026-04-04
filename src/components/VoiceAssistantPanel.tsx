@@ -487,38 +487,26 @@ export function VoiceAssistantPanel() {
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-5">
           <div className="mb-4 xl:mb-5">
-            <div>
-              <p className="text-xs  tracking-[0.24em] text-cyan-300">
-                <a
-                  href="https://www.linkedin.com/in/tarekmonowar/"
-                  target="_blank"
-                  className="hover:underline"
-                >
-                  Tarek Monowar&apos;s
-                </a>{" "}
-                AI STUDIO
-              </p>
-              <h1 className="mt-2 xl:mt-4 text-xl font-semibold text-slate-100 md:text-2xl">
-                {assistantName == "Omi"
-                  ? "Interview Prep Practice with"
-                  : "English Speaking Practice with"}{" "}
-                <span className="font-bold text-fuchsia-600">
-                  {" "}
-                  {assistantName}.
-                </span>
-              </h1>
-            </div>
+            <h1 className="mt-2 xl:mt-3 text-xl font-semibold text-slate-100 md:text-2xl">
+              {assistantName == "Omi"
+                ? "Interview Prep Practice with"
+                : "English Speaking Practice with"}{" "}
+              <span className="font-bold text-fuchsia-600">
+                {" "}
+                {assistantName}.
+              </span>
+            </h1>
           </div>
 
-          <div className="relative overflow-hidden rounded-3xl border border-cyan-500/25 bg-slate-950/70 p-2 md:p-3">
+          <div className="relative overflow-hidden rounded-3xl  bg-slate-950/70 p-2 md:p-3">
             <div className="mb-4 pt-1 flex items-center justify-between text-xs uppercase tracking-[0.14em] text-cyan-200/90">
               <span className="flex items-center gap-2">
                 <Radio className="h-4 w-4" />
-                Real-time voice practice
+                Real-time voice
               </span>
               <span className="flex items-center gap-2">
                 <ShieldCheck className="h-4 w-4" />
-                {isSecureContext ? "Secure context ready" : "HTTPS required"}
+                {isSecureContext ? "Secure" : "HTTPS required"}
               </span>
             </div>
 
@@ -620,7 +608,7 @@ export function VoiceAssistantPanel() {
                 className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold  tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-50 ${
                   hasPendingInstructionChange
                     ? "border-cyan-300/50 bg-cyan-400/15 text-cyan-100 hover:bg-cyan-300/20"
-                    : "border-slate-500/70 bg-slate-800/85 text-slate-100"
+                    : "border-slate-500/70 bg-slate-950/70 text-slate-100"
                 }`}
               >
                 Apply Change
@@ -637,46 +625,31 @@ export function VoiceAssistantPanel() {
         </section>
 
         <aside className="flex flex-col gap-3 lg:max-h-[calc(100vh-4rem)] lg:min-h-[620px]">
-          <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-3 backdrop-blur md:p-4">
-            <div className="flex items-center justify-between">
-              <p className="text-xs uppercase tracking-[0.14em] text-cyan-200">
-                {appliedInstructionMode === "interview-prep"
-                  ? "Interview room brief"
-                  : "Session brief"}
-              </p>
-              <span
-                className={`rounded-full px-2 py-1 text-[10px] uppercase tracking-[0.12em] ${
-                  sessionReady
-                    ? "bg-emerald-500/20 text-emerald-200"
-                    : "bg-slate-700/60 text-slate-300"
-                }`}
-              >
-                {sessionReady ? "Live" : "Standby"}
-              </span>
-            </div>
-
+          <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-2 backdrop-blur md:p-3">
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+              <div className="rounded-xl bg-slate-950/70 py-2 px-3">
                 <p className="text-slate-400">Phase</p>
-                <p className="mt-1 font-semibold text-fuchsia-600">
+                <p className="mt-1 font-semibold xl:text-lg text-cyan-400">
                   {interviewPhaseLabel}
                 </p>
               </div>
-              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+              <div className="rounded-xl bg-slate-950/70 py-2 px-3">
                 <p className="text-slate-400">Session time remaining</p>
-                <p className={remainingTimeTextClass}>
+                <p
+                  className={`mt-1 font-semibold xl:text-lg ${remainingTimeTextClass}`}
+                >
                   {formatRemainingDuration(remainingSeconds, started)}
                 </p>
               </div>
-              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+              <div className="rounded-xl bg-slate-950/70 py-2 px-3">
                 <p className="text-slate-400">Questions asked</p>
-                <p className="mt-1 font-semibold text-cyan-100">
+                <p className="mt-1 font-semibold text-cyan-100 xl:text-lg">
                   {assistantQuestionCount}
                 </p>
               </div>
-              <div className="rounded-xl border border-cyan-400/20 bg-slate-900/70 p-2">
+              <div className="rounded-xl bg-slate-950/70 py-2 px-3">
                 <p className="text-slate-400">Your responses</p>
-                <p className="mt-1 font-semibold text-emerald-100">
+                <p className="mt-1 font-semibold text-emerald-100 xl:text-lg">
                   {userResponseCount}
                 </p>
               </div>
@@ -747,11 +720,6 @@ export function VoiceAssistantPanel() {
           </section>
 
           <section className="flex min-h-[380px] flex-1 flex-col rounded-3xl border border-cyan-400/20 bg-slate-900/60 p-2 backdrop-blur md:p-4 lg:min-h-0">
-            <p className=" text-sm text-slate-300">
-              Your speech and {assistantName}&apos;s response transcripts appear
-              here in real-time.
-            </p>
-
             <div className="mt-1 min-h-0 flex-1 space-y-3 overflow-y-auto pr-1">
               {transcripts.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950/55 p-4 text-sm text-slate-400">

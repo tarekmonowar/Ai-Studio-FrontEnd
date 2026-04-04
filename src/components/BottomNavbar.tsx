@@ -43,7 +43,7 @@ export function BottomNavbar() {
                   aria-current={isActive ? "page" : undefined}
                   className={`group relative flex h-12 items-center justify-center overflow-hidden rounded-xl border px-2 text-center text-[11px] font-semibold tracking-[0.06em] transition-all duration-300 sm:text-sm ${
                     isActive
-                      ? "nav-link-active-fx border-cyan-300/80 bg-cyan-400/10 text-cyan-50"
+                      ? "nav-link-active-fx border-cyan-300/80  text-cyan-50"
                       : "border-transparent text-slate-300 hover:bg-slate-900/70 hover:text-slate-100"
                   }`}
                 >

@@ -26,7 +26,7 @@ export function AppTopHeader() {
         AI Studio
       </p>
 
-      <p className="px-2 text-center text-xs font-semibold uppercase tracking-[0.12em] text-cyan-200 sm:text-base sm:tracking-[0.18em]">
+      <p className="px-2 text-center text-xs xl:text-lg font-semibold  tracking-[0.12em] text-cyan-200 sm:text-base sm:tracking-[0.18em]">
         {currentPageTitle}
       </p>
 
