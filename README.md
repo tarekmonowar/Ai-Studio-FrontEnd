@@ -11,7 +11,7 @@
 - Backend:
   [https://github.com/tarekmonowar/Ai-Studio-BackEnd](https://github.com/tarekmonowar/Ai-Studio-BackEnd)
 
-![AI Studio App](src/public/aistuio.png)
+![AI Studio App - AI Agents](src/public/aiagents.png)
 
 ## 📖 What This Project Solves
 
@@ -75,3 +75,9 @@ skills.
 
 _For the backend logic, API keys, and voice AI integrations, check out the
 [Backend Repository](https://github.com/tarekmonowar/Ai-Studio-BackEnd)._
+
+## 🧠 Generative AI Capabilities
+
+![Generative AI Feature](src/public/aigenerative.png)
+
+Beyond just voice agents, the application features a robust **Generative AI** interface. Here you can explore deep analytical insights, ask dynamic technical questions, handle complex tasks, and experience a state-of-the-art interface built on top of modern Large Language Models perfectly matched for coding and logic execution.
