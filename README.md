@@ -1,4 +1,4 @@
-# 🎙️ AI Studio - Frontend
+# 🤖 AI Studio - Autonomous Agents & Generative AI
 
 **Live Demo**:
 [https://ai-studio.tarekmonowar.dev/](https://ai-studio.tarekmonowar.dev/) |
@@ -15,31 +15,29 @@
 
 ## 📖 What This Project Solves
 
-AI Studio is an interactive, real-time voice assistant explicitly designed for
-technical mock interviews. It allows users to practice real-world interview
-scenarios seamlessly. By combining cutting-edge Voice Activity Detection (VAD)
-and WebSocket streaming, the frontend provides an extremely responsive and
-natural conversational interface for candidates to practice and improve their
-skills.
+AI Studio bridges the gap between conversational AI and functional application automation. Through an intuitive chat interface, users interact with sophisticated **Autonomous AI Agents** capable of executing real-world, deterministic instructions using real-time function calling. 
+
+Rather than just offering conversational responses, the AI agent interprets user intent and executes live system automations. Whether you need to automatically navigate between specific application pages, dispatch professional emails directly via SMTP integration, or completely customize the website's themes and colors dynamically, the Agent resolves those requests autonomously.
 
 ## ✨ Features
 
-- **Real-time Voice Interaction**: Seamless microphone capture, WebSockets
-  streaming, and audio playback.
-- **Voice Activity Detection (VAD)**: Smartly detects when the user starts/stops
-  speaking for fluid turn-taking.
-- **Interactive UI**: Clean, modern interface built with Next.js 14 and Tailwind
-  CSS.
-- **Real-time Transcripts**: Displays the conversation transcript dynamically as
-  you speak.
+- **LLM Function Calling**: Seamless parsing of natural language to execute strict JSON tool definitions mapping to core application logic.
+- **Workflow Automation**: Intelligent capabilities enabling the agent to route pages, validate inputs, and securely trigger backend email pipelines via Nodemailer.
+- **Dynamic UI Customizer**: Ask the agent to tweak the site's styling (themes, typography, or background colors) and it repaints the DOM in real-time.
+- **Fluid Intent State**: Intercepts requests intelligently—if it needs more clarity to send an email, the agent gracefully challenges the user for required variables.
+
+## 🧠 Generative AI Capabilities
+
+![Generative AI Feature](src/public/aigenerative.png)
+
+Beyond action-oriented autonomous agents, the application naturally supports a robust **Generative AI** interface. Here you can dive into deep analytical insights, explore dynamic technical questions, and experience a state-of-the-art interactive prompt environment built perfectly for developers, coding, and logical execution.
 
 ## 🛠️ Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
 - **Styling**: Tailwind CSS
 - **Icons**: Lucide React
-- **Voice / Audio**: Custom Hooks (`useMicrophoneVad`, `useVoiceSocket`), PCM
-  Processing
+- **Logic & Orchestration**: React Custom Hooks, Context state pipelines, Azure integration.
 
 ## 🚀 Getting Started
 
@@ -61,7 +59,6 @@ skills.
 
    ```env
    NEXT_PUBLIC_BACKEND_HTTP_URL=http://localhost:8787
-   NEXT_PUBLIC_BACKEND_WS_URL=ws://localhost:8787/ws
    ```
 
 4. **Run the Development Server**:
@@ -73,11 +70,5 @@ skills.
 
 ---
 
-_For the backend logic, API keys, and voice AI integrations, check out the
+_For the backend logic, API keys, and email service integrations, check out the
 [Backend Repository](https://github.com/tarekmonowar/Ai-Studio-BackEnd)._
-
-## 🧠 Generative AI Capabilities
-
-![Generative AI Feature](src/public/aigenerative.png)
-
-Beyond just voice agents, the application features a robust **Generative AI** interface. Here you can explore deep analytical insights, ask dynamic technical questions, handle complex tasks, and experience a state-of-the-art interface built on top of modern Large Language Models perfectly matched for coding and logic execution.
