@@ -1,4 +1,4 @@
-import { VoiceAssistantPanel } from "@/components/VoiceAssistantPanel";
+import { VoiceAssistantPanel } from "@/components/ai-generative/VoiceAssistantPanel";
 
 export default function Home() {
   return <VoiceAssistantPanel />;
