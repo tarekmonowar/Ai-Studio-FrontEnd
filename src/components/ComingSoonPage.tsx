@@ -24,6 +24,9 @@ export function ComingSoonPage({ title, subtitle }: ComingSoonPageProps) {
             Coming soon
           </p>
         </div>
+        <p className="text-sm text-slate-400">
+          We&apos;re working hard to bring you something amazing. Stay tuned!
+        </p>
       </section>
     </main>
   );
