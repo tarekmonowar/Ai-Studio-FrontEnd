@@ -4,6 +4,7 @@ import tmImage from "@/public/tm.png";
 import { AppTopHeader } from "@/components/AppTopHeader";
 import { BottomNavbar } from "@/components/BottomNavbar";
 import "./globals.css";
+import { AIChatMessenger } from "@/components/ai-messenger/AIMessenger";
 
 const headingFont = Sora({
   subsets: ["latin"],
@@ -59,6 +60,7 @@ export default function RootLayout({
         <div className="relative min-h-screen">
           <AppTopHeader />
           {children}
+          <AIChatMessenger />
           <BottomNavbar />
         </div>
       </body>
