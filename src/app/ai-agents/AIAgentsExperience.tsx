@@ -2,6 +2,14 @@
 
 import type { CSSProperties } from "react";
 import { useMemo } from "react";
+import {
+  Bot,
+  Mail,
+  Paintbrush,
+  Navigation,
+  Sparkles,
+  ArrowRight,
+} from "lucide-react";
 import { AIAgentsChatPanel } from "@/components/ai-agents/AIAgentsChatPanel";
 import { AIPipelineMonitor } from "@/components/ai-agents/AIPipelineMonitor";
 import { HowToUseDemo } from "@/components/ai-agents/HowToUseDemo";
@@ -66,6 +74,90 @@ export function AIAgentsExperience() {
       className="px-4 pb-32 pt-3 transition-colors duration-500 sm:px-8 lg:px-10"
       style={wrapperStyle}
     >
+      {/* ── Page Header ── */}
+      <div className="mx-auto w-full max-w-6xl mb-4 space-y-4">
+        <div className="text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-100 mb-2">
+            Autonomous AI{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-teal-400">
+              Agents
+            </span>
+          </h1>
+          <p className="text-sm sm:text-base text-slate-400 max-w-2xl mx-auto">
+            Chat with an AI agent that autonomously executes server-side
+            functions — navigate pages, send real emails, and customize the UI
+            through GPT function calling.
+          </p>
+        </div>
+
+        {/* ── Capability Info Cards ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            {
+              icon: Navigation,
+              title: "Page Navigation",
+              desc: "Route to any page",
+              color: "from-cyan-500/20 to-sky-500/10",
+              iconColor: "text-cyan-400",
+              borderColor: "border-cyan-500/20",
+            },
+            {
+              icon: Mail,
+              title: "Email Automation",
+              desc: "SMTP via Nodemailer",
+              color: "from-fuchsia-500/20 to-purple-500/10",
+              iconColor: "text-fuchsia-400",
+              borderColor: "border-fuchsia-500/20",
+            },
+            {
+              icon: Paintbrush,
+              title: "Live UI Styling",
+              desc: "Theme, colors & fonts",
+              color: "from-amber-500/20 to-orange-500/10",
+              iconColor: "text-amber-400",
+              borderColor: "border-amber-500/20",
+            },
+            {
+              icon: Bot,
+              title: "Function Calling",
+              desc: "Zod-validated tool calls",
+              color: "from-emerald-500/20 to-teal-500/10",
+              iconColor: "text-emerald-400",
+              borderColor: "border-emerald-500/20",
+            },
+          ].map((card) => (
+            <div
+              key={card.title}
+              className={`rounded-xl border ${card.borderColor} bg-gradient-to-br ${card.color} p-4 backdrop-blur`}
+            >
+              <card.icon className={`h-5 w-5 ${card.iconColor} mb-2`} />
+              <p className="text-sm font-semibold text-slate-200">
+                {card.title}
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* ── Pipeline Flow Indicator ── */}
+        <div className="flex items-center justify-center gap-2 py-1 text-xs text-slate-500 flex-wrap">
+          <span className="flex items-center gap-1 text-cyan-400">
+            <Sparkles className="h-3.5 w-3.5" /> User Prompt
+          </span>
+          <ArrowRight className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-1 text-fuchsia-400">
+            <Bot className="h-3.5 w-3.5" /> GPT Intent Parsing
+          </span>
+          <ArrowRight className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-1 text-amber-400">
+            <Paintbrush className="h-3.5 w-3.5" /> Tool Execution
+          </span>
+          <ArrowRight className="h-3.5 w-3.5" />
+          <span className="flex items-center gap-1 text-emerald-400">
+            <Navigation className="h-3.5 w-3.5" /> Live Action
+          </span>
+        </div>
+      </div>
       <div
         className="mx-auto grid w-full max-w-6xl gap-4 rounded-3xl border p-3 shadow-2xl md:p-5 lg:grid-cols-[1.5fr_1fr]"
         style={{
