@@ -5,15 +5,15 @@ import { usePathname } from "next/navigation";
 import studioStar from "@/public/star.svg";
 
 function resolvePageTitle(pathname: string): string {
-  if (pathname.startsWith("/ai-agents")) {
-    return "AI Agents";
+  if (pathname.startsWith("/generative-ai")) {
+    return "Generative AI";
   }
 
   if (pathname.startsWith("/analytical-ai")) {
     return "Analytical AI";
   }
 
-  return "Generative AI";
+  return "AI Agents";
 }
 
 export function AppTopHeader() {

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Sora, Space_Grotesk } from "next/font/google";
 import tmImage from "@/public/tm.png";
-import { AppTopHeader } from "@/components/AppTopHeader";
 import { BottomNavbar } from "@/components/BottomNavbar";
 import "./globals.css";
 import { AIChatMessenger } from "@/components/ai-messenger/AIMessenger";
@@ -58,7 +57,6 @@ export default function RootLayout({
         className={`${headingFont.variable} ${bodyFont.variable} antialiased`}
       >
         <div className="relative min-h-screen">
-          <AppTopHeader />
           {children}
           <AIChatMessenger />
           <BottomNavbar />

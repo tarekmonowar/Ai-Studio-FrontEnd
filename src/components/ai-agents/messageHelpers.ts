@@ -66,7 +66,7 @@ export function resolveRouteFromPageName(pageName: string): string | null {
 
   if (
     normalized === "/" ||
-    normalized.includes("generative") ||
+    normalized.includes("agent") ||
     normalized.includes("home") ||
     normalized.includes("main") ||
     normalized.includes("landing")
@@ -78,8 +78,8 @@ export function resolveRouteFromPageName(pageName: string): string | null {
     return "/analytical-ai";
   }
 
-  if (normalized === "/ai-agents" || normalized.includes("agent")) {
-    return "/ai-agents";
+  if (normalized === "/generative-ai" || normalized.includes("generative")) {
+    return "/generative-ai";
   }
 
   return null;

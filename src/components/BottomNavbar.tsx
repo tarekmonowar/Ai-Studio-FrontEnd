@@ -6,15 +6,15 @@ import { usePathname } from "next/navigation";
 const NAV_ITEMS = [
   {
     href: "/",
-    label: "Generative AI",
-  },
-  {
-    href: "/ai-agents",
     label: "AI Agents",
   },
   {
     href: "/analytical-ai",
     label: "Analytical AI",
+  },
+  {
+    href: "/generative-ai",
+    label: "Generative AI",
   },
 ] as const;
 
