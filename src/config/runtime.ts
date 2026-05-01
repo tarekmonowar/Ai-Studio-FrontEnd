@@ -21,7 +21,9 @@ export function resolveBackendHttpUrl(): string {
     try {
       return normalizeHttpBase(httpBase);
     } catch {
-      // Fall through to same-host development default.
+      console.log(
+        "Warning: Invalid NEXT_PUBLIC_BACKEND_HTTP_URL environment variable. Falling back to defaults.",
+      );
     }
   }
 
