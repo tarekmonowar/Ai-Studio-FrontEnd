@@ -17,9 +17,8 @@ export function VoiceAssistantPanel() {
   const panel = useVoicePanel();
 
   return (
-    <main className="bg-app px-4 py-3 text-slate-100 sm:px-8 lg:px-10">
+    <main className="bg-app px-4 py-3 text-slate-100 sm:px-8 lg:px-10 xl:mt-5">
       <div className="mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-
         {/* ─── Left Column: Orb, Controls, Error ─────────────────────── */}
         <section className="rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur md:p-5">
           {/* Page title */}
