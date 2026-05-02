@@ -75,8 +75,9 @@ export function AIAgentsChatPanel({
       </div>
 
       <div
-        className="agent-monitor-scroll flex-1 space-y-2 overflow-y-auto overflow-x-hidden py-2 pr-1"
+        className="agent-monitor-scroll flex-1 space-y-2 overflow-x-hidden py-2 pr-1"
         style={{
+          overflowY: messages.length === 0 && !isThinking ? "hidden" : "auto",
           scrollbarWidth: "thin",
           scrollbarColor: isLightTheme
             ? "rgba(71,85,105,0.3) transparent"
