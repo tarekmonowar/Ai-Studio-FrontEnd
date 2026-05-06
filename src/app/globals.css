@@ -14,13 +14,12 @@
 body {
   color: var(--ink);
   font-family: var(--font-body), sans-serif;
-  background:
-    radial-gradient(
-      circle at 14% 4%,
-      #10203f 0%,
-      #06122a 35%,
-      #020617 100%
-    );
+  background: radial-gradient(
+    circle at 14% 4%,
+    #10203f 0%,
+    #06122a 35%,
+    #020617 100%
+  );
   min-height: 100vh;
 }
 
@@ -33,14 +32,13 @@ h4 {
 
 @layer utilities {
   .bg-app {
-    background:
-      repeating-linear-gradient(
-        120deg,
-        rgba(148, 163, 184, 0.05),
-        rgba(148, 163, 184, 0.05) 1px,
-        transparent 1px,
-        transparent 16px
-      );
+    background: repeating-linear-gradient(
+      120deg,
+      rgba(148, 163, 184, 0.05),
+      rgba(148, 163, 184, 0.05) 1px,
+      transparent 1px,
+      transparent 16px
+    );
   }
 }
 
@@ -419,6 +417,35 @@ h4 {
   background: rgba(148, 163, 184, 0.4);
 }
 
+.voice-transcript-scroll {
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.25) rgba(15, 23, 42, 0.3);
+}
+
+.voice-transcript-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+
+.voice-transcript-scroll::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+.voice-transcript-scroll::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.25);
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+
+.voice-transcript-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.45);
+}
+
+.voice-transcript-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}
 /* Cursor blink for demo typing */
 @keyframes agent-cursor-blink {
   0%,
