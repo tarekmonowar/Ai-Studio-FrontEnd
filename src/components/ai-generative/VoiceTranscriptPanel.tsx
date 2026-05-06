@@ -34,7 +34,7 @@ export function VoiceTranscriptPanel({
               <div
                 className={`max-w-[85%] sm:max-w-[80%] rounded-xl sm:rounded-2xl p-2.5 sm:p-3 text-xs sm:text-sm leading-relaxed shadow-sm ${
                   item.role === "user"
-                    ? "border border-cyan-500/30 bg-cyan-500/10 text-cyan-100 rounded-tr-none"
+                    ? "border border-cyan-500/30 bg-purple-500/30 text-cyan-100 rounded-tr-none"
                     : "border border-emerald-500/25 bg-emerald-500/10 text-emerald-100 rounded-tl-none"
                 }`}
               >

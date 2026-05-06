@@ -115,7 +115,8 @@ export function AnalyticalAIPanel() {
 
   /* ── Similarity badge color ── */
   const getSimilarityColor = (sim: number) => {
-    if (sim >= 0.8) return "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
+    if (sim >= 0.8)
+      return "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
     if (sim >= 0.5) return "text-cyan-400 bg-cyan-500/10 border-cyan-500/30";
     if (sim >= 0.3) return "text-amber-400 bg-amber-500/10 border-amber-500/30";
     return "text-slate-400 bg-slate-500/10 border-slate-500/30";
@@ -203,7 +204,7 @@ export function AnalyticalAIPanel() {
         {/* ── Two-Panel Layout ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {/* ═══════════════════ STORE PANEL ═══════════════════ */}
-          <section className="rounded-2xl border border-cyan-500/20 bg-slate-900/70 backdrop-blur overflow-hidden">
+          <section className="rounded-2xl border border-cyan-500/20 bg-slate-950/70 backdrop-blur overflow-hidden">
             {/* Panel Header */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-cyan-500/15 bg-gradient-to-r from-cyan-500/10 to-transparent">
               <div className="h-9 w-9 rounded-lg bg-cyan-500/15 border border-cyan-500/25 flex items-center justify-center">
@@ -306,7 +307,7 @@ export function AnalyticalAIPanel() {
           </section>
 
           {/* ═══════════════════ QUERY PANEL ═══════════════════ */}
-          <section className="rounded-2xl border border-teal-500/20 bg-slate-900/70 backdrop-blur overflow-hidden flex flex-col">
+          <section className="rounded-2xl border border-teal-500/20 bg-slate-950/70 backdrop-blur overflow-hidden flex flex-col">
             {/* Panel Header */}
             <div className="flex items-center gap-3 px-5 py-4 border-b border-teal-500/15 bg-gradient-to-r from-teal-500/10 to-transparent">
               <div className="h-9 w-9 rounded-lg bg-teal-500/15 border border-teal-500/25 flex items-center justify-center">
@@ -375,16 +376,19 @@ export function AnalyticalAIPanel() {
                   </div>
                 )}
 
-                {hasQueried && !isQuerying && queryResults.length === 0 && !queryError && (
-                  <div className="text-center py-8 text-slate-500 text-sm">
-                    <Search className="h-8 w-8 mx-auto mb-2 opacity-40" />
-                    <p>No matching documents found.</p>
-                    <p className="text-xs mt-1">
-                      Try storing some text first, then search for related
-                      content.
-                    </p>
-                  </div>
-                )}
+                {hasQueried &&
+                  !isQuerying &&
+                  queryResults.length === 0 &&
+                  !queryError && (
+                    <div className="text-center py-8 text-slate-500 text-sm">
+                      <Search className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                      <p>No matching documents found.</p>
+                      <p className="text-xs mt-1">
+                        Try storing some text first, then search for related
+                        content.
+                      </p>
+                    </div>
+                  )}
 
                 {queryResults.map((result, index) => (
                   <div

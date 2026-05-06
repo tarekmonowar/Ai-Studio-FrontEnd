@@ -111,11 +111,46 @@ export function VoiceAssistantPanel() {
             </span>
           ))}
         </div>
+
+        {/* ── How MCP Works ── */}
+        {/* <div className="mx-auto max-w-2xl rounded-xl border border-slate-700/60 bg-slate-800/30 p-4 space-y-2">
+          <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+            How MCP powers this
+          </p>
+          <ol className="text-xs text-slate-400 space-y-1.5 list-decimal list-inside">
+            <li>
+              MCP Server loads all interview questions from the{" "}
+              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
+                question bank
+              </code>
+            </li>
+            <li>
+              Client calls{" "}
+              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
+                buildInterviewContext
+              </code>{" "}
+              tool to build AI instructions
+            </li>
+            <li>
+              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
+                extractAskedQuestionIds
+              </code>{" "}
+              tracks which questions are already asked
+            </li>
+            <li>
+              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
+                detectTopicSelection
+              </code>{" "}
+              auto-switches when you pick a new technology
+            </li>
+          </ol>
+        </div> */}
       </div>
 
       {/* ─── Main Content Grid ───────────────────────────────────────── */}
       <div className="mx-auto grid w-full max-w-6xl gap-4 sm:gap-5 lg:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         {/* ─── Left Column: Orb, Controls, Error ─────────────────────── */}
+<<<<<<< HEAD
         <section className="rounded-2xl sm:rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-4 md:p-5">
           {/* Section title */}
           <div className="mb-3 sm:mb-4 xl:mb-5">
