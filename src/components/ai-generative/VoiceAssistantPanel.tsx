@@ -72,8 +72,8 @@ export function VoiceAssistantPanel() {
           </h1>
           <p className="text-xs sm:text-sm md:text-base text-slate-400 max-w-2xl mx-auto leading-relaxed">
             Practice interviews with an AI voice assistant powered by MCP —
-            questions are served from a structured question bank, tracked in
-            real time, and auto-switched when you change topics.
+            questions are served from a structured question bank and
+            auto-switched when you change topics.
           </p>
         </div>
 
@@ -101,9 +101,7 @@ export function VoiceAssistantPanel() {
         <div className="flex items-center justify-center gap-1.5 sm:gap-2 py-1 text-[10px] sm:text-xs text-slate-500 flex-wrap">
           {PIPELINE_STEPS.map((step, i) => (
             <span key={step.label} className="contents">
-              {i > 0 && (
-                <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              )}
+              {i > 0 && <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
               <span className={`flex items-center gap-1 ${step.color}`}>
                 <step.icon className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
                 {step.label}
@@ -150,8 +148,7 @@ export function VoiceAssistantPanel() {
       {/* ─── Main Content Grid ───────────────────────────────────────── */}
       <div className="mx-auto grid w-full max-w-6xl gap-4 sm:gap-5 lg:gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         {/* ─── Left Column: Orb, Controls, Error ─────────────────────── */}
-<<<<<<< HEAD
-        <section className="rounded-2xl sm:rounded-3xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-4 md:p-5">
+        <section className="rounded-xl border border-cyan-400/20 bg-slate-900/65 p-3 shadow-2xl shadow-cyan-950/20 backdrop-blur sm:p-4 md:p-5">
           {/* Section title */}
           <div className="mb-3 sm:mb-4 xl:mb-5">
             <h2 className="text-base sm:text-lg md:text-xl xl:text-2xl font-semibold text-slate-100">
