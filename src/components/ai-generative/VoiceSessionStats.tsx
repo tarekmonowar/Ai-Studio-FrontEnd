@@ -12,10 +12,6 @@ interface VoiceSessionStatsProps {
   userResponseCount: number;
 }
 
-/**
- * Renders the four session stat cards (Phase, Time, Questions, Responses)
- * and the developer profile card below them.
- */
 export function VoiceSessionStats({
   interviewPhaseLabel,
   remainingSeconds,

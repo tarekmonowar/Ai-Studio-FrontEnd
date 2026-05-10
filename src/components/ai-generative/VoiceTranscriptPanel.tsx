@@ -7,10 +7,6 @@ interface VoiceTranscriptPanelProps {
   transcriptEndRef: RefObject<HTMLDivElement>;
 }
 
-/**
- * Renders the live conversation transcript as a scrollable chat bubble list.
- * User messages appear on the right, assistant messages on the left.
- */
 export function VoiceTranscriptPanel({
   transcripts,
   assistantName,

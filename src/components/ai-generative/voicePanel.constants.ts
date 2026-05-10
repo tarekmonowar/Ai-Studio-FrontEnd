@@ -1,4 +1,9 @@
-import type { AssistantState, InstructionMode, SpeakerProfile, TranscriptItem } from "@/types/voice";
+import type {
+  AssistantState,
+  InstructionMode,
+  SpeakerProfile,
+  TranscriptItem,
+} from "@/types/voice";
 
 // ─── Session Constants ───────────────────────────────────────────────────────
 
@@ -8,10 +13,6 @@ export const DEFAULT_SPEAKER_PROFILE: SpeakerProfile = "muntaha";
 
 // ─── Phase Labels ────────────────────────────────────────────────────────────
 
-/**
- * Maps backend phase identifiers to the human-readable labels shown in the UI.
- * The backend sends these keys in "phase.update" events.
- */
 export const BACKEND_PHASE_LABELS: Record<string, string> = {
   "interview-prep": "Opening",
   "english-learning": "Language coaching",
@@ -41,8 +42,12 @@ export function resolvePhaseLabel(backendPhase: string): string {
 
 /** Formats a duration in seconds as MM:SS (e.g. 125 → "02:05"). */
 export function formatDuration(totalSeconds: number): string {
-  const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, "0");
-  const seconds = Math.floor(totalSeconds % 60).toString().padStart(2, "0");
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor(totalSeconds % 60)
+    .toString()
+    .padStart(2, "0");
   return `${minutes}:${seconds}`;
 }
 
