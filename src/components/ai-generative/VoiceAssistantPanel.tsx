@@ -109,40 +109,6 @@ export function VoiceAssistantPanel() {
             </span>
           ))}
         </div>
-
-        {/* ── How MCP Works ── */}
-        {/* <div className="mx-auto max-w-2xl rounded-xl border border-slate-700/60 bg-slate-800/30 p-4 space-y-2">
-          <p className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
-            How MCP powers this
-          </p>
-          <ol className="text-xs text-slate-400 space-y-1.5 list-decimal list-inside">
-            <li>
-              MCP Server loads all interview questions from the{" "}
-              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
-                question bank
-              </code>
-            </li>
-            <li>
-              Client calls{" "}
-              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
-                buildInterviewContext
-              </code>{" "}
-              tool to build AI instructions
-            </li>
-            <li>
-              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
-                extractAskedQuestionIds
-              </code>{" "}
-              tracks which questions are already asked
-            </li>
-            <li>
-              <code className="text-cyan-400 bg-cyan-950/40 px-1 rounded">
-                detectTopicSelection
-              </code>{" "}
-              auto-switches when you pick a new technology
-            </li>
-          </ol>
-        </div> */}
       </div>
 
       {/* ─── Main Content Grid ───────────────────────────────────────── */}
